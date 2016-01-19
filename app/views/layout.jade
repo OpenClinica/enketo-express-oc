@@ -28,12 +28,69 @@ html(manifest=manifest, lang=i18n.lng(), dir=directionality())
 
     if tracking
       script.
+        window.ga_debug = {trace: true};
+
         (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
         (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
         m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
         })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-        ga('create', '#{tracking}', '#{trackingDomain}');
-        ga('send', 'pageview');
+        (function(w, $){
+
+          var console = {
+            log: function() {
+              $.each(arguments, function(key, m) {
+                alert(m.toString());
+              });
+            }
+          };
+
+          // Get query string, see: http://stackoverflow.com/a/2880929
+          var match,
+            pl     = /\+/g,  // Regex for replacing addition symbol with a space
+            search = /([^&=]+)=?([^&]*)/g,
+            decode = function (s) { return decodeURIComponent(s.replace(pl, " ")); },
+            query  = w.location.search.substring(1),
+            urlParams = {};
+
+          while (match = search.exec(query)) {
+            urlParams[decode(match[1])] = decode(match[2]);
+          }
+
+          var  enketoGa;
+
+          function installEnketoGa(tracker) {
+            var timeSnapshot = new Date().getTime();
+
+            function sendTimelineEvent(category, action, label) {
+              var now = new Date().getTime(),
+                deltaSeconds = (now - timeSnapshot) / 1000;
+              timeSnapshot = now;
+
+              console.log('send ga, event, ' + category + ', ' + action + ', ' + label + ', ' + deltaSeconds.toString());
+              tracker.send('event', category, action, label, deltaSeconds);
+            };
+
+            $('body')
+              .on('change', 'article > form input', function() {
+                sendTimelineEvent('FormInput', 'update', this.getAttribute('name')); 
+              })
+              .on('click', '#submit-form', function() {
+                sendTimelineEvent('Form', 'submit', this.form.getAttribute('id')); 
+              })
+              .on('submit', 'article > form', function() {
+                sendTimelineEvent('Form', 'submit', this.form.getAttribute('id')); 
+              });
+          }
+
+          ga('create', {
+            trackingId: '#{tracking}',
+            cookieDomain: '#{trackingDomain}',
+            userId: urlParams['#{urlParamUserId}']
+          });
+          ga('send', 'pageview');
+          ga(function(tracker) { installEnketoGa(tracker); });
+
+        })(window, jQuery);
 
     if livereload
       script(src="//localhost:35729/livereload.js")

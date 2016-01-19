@@ -1,0 +1,48 @@
+.form-header {
+    position: static;
+    
+    .branding {
+        height: auto;
+        
+        img {
+            max-height: none;
+            max-width: none;
+        }
+    }
+}
+
+.main .paper {
+    background-color: transparent;
+    padding: 0;
+    
+    form {
+        background-color: #fff;
+        margin-bottom: 0;
+        padding: 45px;
+        
+        & + form {
+            padding-top: 65px;
+        }
+    }
+}
+
+.form-footer {
+    margin: 0;
+    width: auto;
+    
+    .main-controls {
+        background-color: #fff;
+        margin: 0 auto;
+        padding: 30px 0 60px;
+    }
+
+    .enketo-power {
+        margin-top: 30px;
+        position: static;
+        text-align: right;
+    }
+}
+
+.form-footer__content {
+    position: static;
+}

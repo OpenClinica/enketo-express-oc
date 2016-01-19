@@ -6,6 +6,6 @@ header.form-header
   .form-progress
   a.branding(href="#{logo.href || '#'}")
     .logo-wrapper
-      img(src="#{logo.source}", alt="brand logo")
+      img(src="#{customLogo ? customLogo : logo.source}", alt="brand logo")
   button.form-header__button--print(onclick="return false;").hide
   span.form-language-selector.hide: span= t('form.chooseLanguage')
