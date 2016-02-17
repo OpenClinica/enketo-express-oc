@@ -1,0 +1,12 @@
+@media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+    body .main .paper {
+        display: table;
+        width: 100%;
+    }
+    .form-header > .branding > .logo-wrapper > img {
+        border-width: 0px;
+    }
+    .form-footer > .form-footer__content > .form-footer__content__main-controls {
+        flex: none;
+    }
+}

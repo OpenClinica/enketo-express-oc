@@ -97,7 +97,7 @@ function uploadRecord( record ) {
             } );
         }, Promise.resolve() )
         .then( function( results ) {
-            console.debug( 'results of all batches submitted', results );
+            // console.debug( 'results of all batches submitted', results );
             return results[ 0 ];
         } );
 }
