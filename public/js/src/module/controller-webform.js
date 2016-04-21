@@ -258,7 +258,10 @@ function _submitRecord() {
                     here: authLink
                 } ), t( 'alert.submissionerror.heading' ) );
             } else {
-                gui.alert( gui.getErrorResponseMsg( result.status ), t( 'alert.submissionerror.heading' ) );
+                if ( result.status === 406 )
+                    gui.alert(  result.message  , t( 'alert.submissionerror.heading' ) );    
+                else
+                    gui.alert( gui.getErrorResponseMsg( result.status ), t( 'alert.submissionerror.heading' ) );
             }
         } );
 }

@@ -132,11 +132,12 @@ function _uploadBatch( recordBatch ) {
                     reject( result );
                 }
             } )
-            .fail( function( jqXHR, textStatus ) {
+            .fail( function( jqXHR, textStatus) {
                 // TODO: extract message from XML response?
                 reject( {
-                    status: jqXHR.status
-                        // message: textStatus
+                    status: jqXHR.status,
+                    // need message for spesific error
+                    message: jqXHR.responseText ? jqXHR.responseText : undefined
                 } );
             } );
     } );
