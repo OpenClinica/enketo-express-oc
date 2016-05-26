@@ -1,6 +1,6 @@
 'use strict';
 
-require( './module/redirect-IE' );
+// require( './module/redirect-IE' );
 require( './module/jquery-global' );
 require( './module/promise-by-Q' );
 require( './module/Array-from' );
