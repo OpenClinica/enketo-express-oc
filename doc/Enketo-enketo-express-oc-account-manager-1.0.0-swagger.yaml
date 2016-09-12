@@ -1,0 +1,273 @@
+swagger: '2.0'
+info:
+  title: Enketo Account Manager API for OpenClinica
+  description: Use multiple accounts with a single Enketo installation.
+  version: "1.0.0"
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+host: enk.to
+schemes:
+  - http
+  - https
+basePath: /accounts/api/v1
+produces:
+  - application/json
+consumes: 
+  - application/x-www-form-urlencoded
+paths:
+  /account:
+    get:
+      summary: Account
+      description: |
+        The GET /account endpoint returns an existing account.
+      parameters:
+        - $ref: '#/parameters/server_url_query'
+      tags:
+        - accounts
+      security:
+        - auth: []
+      responses:
+        200:
+          $ref: '#/responses/existing'
+        400: 
+          $ref: '#/responses/bad'
+        401:
+          $ref: '#/responses/unauthorized'
+        403:
+          $ref: '#/responses/noquota'
+        405:
+          $ref: '#/responses/forbidden'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+    post:
+      summary: Account
+      description: |
+        The POST /account endpoint adds a new account if it does not already exist, and returns the new or existing account.
+      parameters:
+        - $ref: '#/parameters/server_url_body'
+        - $ref: '#/parameters/api_key_body'
+      tags:
+        - accounts
+      security:
+        - auth: []
+      responses:
+        200:
+          $ref: '#/responses/existing'
+        201:
+          $ref: '#/responses/new'
+        400: 
+          $ref: '#/responses/bad'
+        401:
+          $ref: '#/responses/unauthorized'
+        403:
+          $ref: '#/responses/noquota'
+        405:
+          $ref: '#/responses/forbidden'
+        409: 
+          $ref: '#/responses/busy'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+    put:
+      summary: Account
+      description: |
+        The PUT /account endpoint updates an account and returns the updated account.
+      parameters:
+        - $ref: '#/parameters/server_url_body'
+        - $ref: '#/parameters/api_key_body_optional'
+      tags:
+        - accounts
+      security:
+        - auth: []
+      responses:
+        200:
+          $ref: '#/responses/existing'
+        201:
+          $ref: '#/responses/updated'
+        400: 
+          $ref: '#/responses/bad'
+        401:
+          $ref: '#/responses/unauthorized'
+        403:
+          $ref: '#/responses/noquota'
+        404: 
+          $ref: '#/responses/notfound'
+        405:
+          $ref: '#/responses/forbidden'
+        409: 
+          $ref: '#/responses/busy'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+    delete:
+      summary: Account
+      description: |
+        The PUT /account endpoint deletes an account and returns the updated account.
+      parameters:
+        - $ref: '#/parameters/api_key_body'
+      tags:
+        - accounts
+      security:
+        - auth: []
+      responses:
+        204:
+          description: Empty body.
+        400: 
+          $ref: '#/responses/bad'
+        401:
+          $ref: '#/responses/unauthorized'
+        403:
+          $ref: '#/responses/noquota'
+        404: 
+          $ref: '#/responses/notfound'
+        405:
+          $ref: '#/responses/forbidden'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /list:
+    get:
+      summary: Account List
+      description: |
+        The /list endpoint returns the complete list of accounts.
+      tags:
+        - accounts
+      security:
+        - auth: []
+      responses:
+        200:
+          description: Array of account objects.
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Account'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+    post:
+      summary: Account List
+      description: |
+        The /list endpoint returns the complete list of accounts.
+      tags:
+        - accounts
+      security:
+        - auth: []
+      responses:
+        200:
+          description: Array of account objects.
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Account'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+definitions:
+  Account:
+    type: object
+    properties:
+      server_url:
+        type: string
+        description: Server URL of the account
+      api_key:
+        type: string
+        description: API key of the account
+      code:
+        type: integer
+        format: int32
+        minimum: 100
+        maximum: 600
+        exclusiveMaximum: true
+        description: HTTP response code
+  Error:
+    type: object
+    properties:
+      code:
+        type: integer
+        format: int32
+        minimum: 100
+        maximum: 600
+        exclusiveMaximum: true
+        description: HTTP response code
+      message:
+        type: string
+        description: Error message
+        
+parameters:
+  server_url_query:
+    name: server_url
+    in: query
+    description: The Server/Study URL that will be used as the base URL to obtain forms from and submit data to.
+    required: true
+    type: string
+    format: url
+  server_url_body:
+    name: server_url
+    in: form
+    description: The Server/Study URL that will be used as the base URL to obtain forms from and submit data to.
+    required: true
+    type: string
+    format: url
+  api_key_body:
+    name: api_key
+    in: form
+    description: The API key that belongs to this account and secures API transactions made for this account
+    required: true
+    type: string
+    format: key
+  api_key_body_optional:
+    name: api_key
+    in: form
+    description: The API key that belongs to this account and secures API transactions made for this account
+    required: false
+    type: string
+    format: key
+responses:
+  existing:
+    description: A single existing account object.
+    schema:
+      $ref: '#/definitions/Account'
+  new:
+    description: A new account object.
+    schema:
+      $ref: '#/definitions/Account'
+  updated:
+    description: An updated account object.
+    schema:
+      $ref: '#/definitions/Account'
+  unauthorized:
+    description: Not Allowed. Invalid API Key.
+    schema:
+      $ref: '#/definitions/Error'
+  bad:
+    description: Bad Request.
+    schema: 
+      $ref: '#/definitions/Error'
+  notfound: 
+    description: Account not found. Nothing to update.
+    schema: 
+      $ref: '#/definitions/Error'
+  noquota:
+    description: Forbidden. No quota left.
+    schema: 
+      $ref: '#/definitions/Error'
+  busy: 
+    description: Conflict. Busy handling pending request for same account.
+    schema:
+      $ref: '#/definitions/Error'
+  forbidden:
+    description: Forbidden.
+    schema:
+      $ref: '#/definitions/Error'
+securityDefinitions:
+  auth:
+     type: basic
+     description: API key as username. Password empty.
