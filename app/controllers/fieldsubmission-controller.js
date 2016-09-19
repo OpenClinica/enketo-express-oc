@@ -40,11 +40,11 @@ router
     } );
 
 function complete( req, res, next ) {
-    _request( 'field', req, res, next );
+    _request( 'complete', req, res, next );
 }
 
 function submit( req, res, next ) {
-    _request( 'complete', req, res, next );
+    _request( 'field', req, res, next );
 }
 
 /** 
