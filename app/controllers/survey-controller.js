@@ -35,6 +35,8 @@ router
     .get( '/_/', offlineWebform )
     .get( '/:enketo_id', webform )
     .get( '/:mod/:enketo_id', webform )
+    .get( '/single/fs/:enketo_id', fieldSubmissionWebform )
+    .get( '/single/fs/:mod/:enketo_id', fieldSubmissionWebform )
     .get( '/preview/:enketo_id', preview )
     .get( '/preview/:mod/:enketo_id', preview )
     .get( '/preview', preview )
@@ -45,6 +47,8 @@ router
     .get( '/single/:mod/:encrypted_enketo_id', single )
     .get( '/edit/:enketo_id', edit )
     .get( '/edit/:mod/:enketo_id', edit )
+    .get( '/edit/fs/:enketo_id', fieldSubmissionWebform )
+    .get( '/edit/fs/:mod/:enketo_id', fieldSubmissionWebform )
     .get( '/xform/:enketo_id', xform )
     .get( '/connection', function( req, res ) {
         res.status = 200;
@@ -88,6 +92,15 @@ function single( req, res, next ) {
     } else {
         _renderWebform( req, res, next, options );
     }
+}
+
+function fieldSubmissionWebform( req, res, next ) {
+    var options = {
+        type: 'fs',
+        iframe: req.iframe
+    };
+
+    _renderWebform( req, res, next, options );
 }
 
 function preview( req, res, next ) {

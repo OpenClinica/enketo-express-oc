@@ -7,5 +7,20 @@
             "historyText": "History",
             "notifyText": "Email?"
         }
+    },
+    "fieldsubmission": {
+        "alert": {
+            "close": {
+                "heading1": "Closing",
+                "heading2": "Warning",
+                "msg1": "Submitting unsaved data...",
+                "msg2": "Not all data has been submitted. If you continue this will be lost."
+            }
+        },
+        "feedback": {
+            "ongoing": "Saving...",
+            "success": "All valid changes saved.",
+            "error": "Failed to save changes."
+        }
     }
 }

@@ -89,6 +89,7 @@
         "karma-safari-launcher": "1.0.x",
         "karma-sinon-chai": "1.2.x",
         "mocha": "2.5.3",
+        "multer": "^1.2.0",
         "phantomjs": "2.1.x",
         "sinon": "^1.17.4",
         "sinon-chai": "^2.8.0",
