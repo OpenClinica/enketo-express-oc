@@ -11,15 +11,61 @@ These widgets build upon the generic comment feature (TODO: add documentation fo
 
 The advanced comment widgets extend the generic comment feature by: populating the comment node with a stringified JSON data structure.
 
-### Data Structure
+### Data Structure 
+
+**TODO: Is this final? I could not find original document that outlined this and reverse-engineered the format from the code.**
 
 ```json
-
+{
+	"queries": [
+		{ 
+			"id": "",
+			"date_time": "2016-09-01 15:01 -06:00",
+			"comment": "This value seems impossible.",
+			"status": "new",
+			"assigned_to": "Maurice Moss (moss)",
+			"notify": false
+		}
+	],
+	"logs": [
+		{
+			"type": "comment",
+			"assigned_to": "Ada Clare (aclare)",
+			"date_time": "2016-04-22 14:44:20 -06:00",
+			"comment": "This is an older comment.", 
+			"status": "updated",
+			"user": "Maurice Moss (moss)"
+		},
+		{ 
+			"type": "audit",  
+			"message": "Item data value updated from old_value to new_value.",  
+			"date_time" : "2016-05-18 12:44:20 -06:00"
+			"user" : "Jen Barber (jen)",
+		}
+	]
+}
 
 ```
 
 ### Discrepancy Notes Widget
 
+To add a discrepancy note to a widget, the following needs to be defined in the XLSForm/XForm:
+
+#### add a question
+
+Add a question of type string, optionally with appearance `multiline`, immediately after the question node it refers to (preferably).
+
+#### Appearance 'dn'
+
+Give this the appearance `dn`
+
+#### Add http://enketo.org/xforms namespace.
+
+In XLSForm on the settings sheet, add a column namespaces and populate this with `enk=http://enketo.org/xforms`
+
+#### Add a bind::enk:for column
+
+For each discrepancy note question, add a reference to the question node it refers to in the `bind::enk:for` column, e.g. `${a}`
 
 
 #### XForm sample
