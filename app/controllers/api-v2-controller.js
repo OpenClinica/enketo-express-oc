@@ -48,6 +48,7 @@ router
     } )
     .all( '/survey/single/once*', function( req, res, next ) {
         req.multipleAllowed = false;
+        next();
     } )
     .all( '*/fieldsubmission*', function( req, res, next ) {
         req.fieldSubmission = true;
