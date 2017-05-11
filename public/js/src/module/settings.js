@@ -110,7 +110,7 @@ if ( window.location.pathname.indexOf( '/preview' ) === 0 ) {
 
 // add enketoId
 settings.enketoIdPrefix = '::';
-settings.enketoId = _getEnketoId( '\/' + settings.enketoIdPrefix, window.location.pathname ) || _getEnketoId( '#', window.location.hash );
+settings.enketoId = _getEnketoId( '\/' + settings.enketoIdPrefix, window.location.pathname ) || _getEnketoId( '#', window.location.hash ).split("?")[0];
 
 // determine whether view is offline-capable
 // TODO: check for manifest attribute on html element instead?
@@ -129,7 +129,7 @@ function _getEnketoId( prefix, haystack ) {
 function _getAllQueryParams() {
     var val;
     var processedVal;
-    var query = window.location.search.substring( 1 );
+    var query = window.location.search.substring( 1 ) || window.location.hash.split("?")[1];
     var vars = query.split( '&' );
     var params = {};
 
@@ -141,7 +141,7 @@ function _getAllQueryParams() {
             params[ pair[ 0 ] ] = processedVal;
         }
     }
-
+    
     return params;
 }
 
