@@ -114,14 +114,11 @@ $padding: 30px;
                 width: 95px;
 
                 &:first-of-type {
-                    width: 30px;
-                }
-
-                &:nth-of-type(2) {
+                    padding-left: 0;
                     width: auto;
                 }
 
-                &:nth-of-type(3) {
+                &:nth-of-type(2) {
                     width: 140px;
                 }
             }
@@ -147,6 +144,10 @@ $padding: 30px;
 
             tbody td[colspan="4"] {
                 text-align: right;
+            }
+
+            tbody td span {
+                margin-right: 5px;
             }
         }
 
@@ -234,7 +235,7 @@ legend .btn-dn .icon {
                     padding-left: 15px;
                     width: 70px;
 
-                    &:nth-of-type(3) {
+                    &:nth-of-type(2) {
                         width: 80px;
                     }
                 }
