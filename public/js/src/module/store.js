@@ -147,6 +147,8 @@ function _checkSupport() {
         } else {
             if ( sniffer.os.ios ) {
                 error = new Error( t( 'store.error.iosusesafari' ) );
+            } else if ( sniffer.browser.isIe() ) {
+                error = new Error( t( 'store.error.disableie' ) );
             } else {
                 error = new Error( t( 'store.error.notsupported' ) );
             }

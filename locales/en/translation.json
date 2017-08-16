@@ -318,7 +318,8 @@
     "error": {
       "iosusesafari": "Your iOS browser is not able to run this form. On iOS, we recommend using Safari.",
       "notavailable": "Browser storage is required but is not available, is corrupted, or is not writeable. If you are in 'private browsing' mode please switch to regular mode, otherwise switch to another browser. (error: __error__)",
-      "notsupported": "Your browser is not able to run this form. We recommend using a modern browser."
+      "notsupported": "Your browser is not able to run this form. We recommend using a modern browser.",
+      "disableie": "Please enable allow website caches and databases on internet options to view this offline page."
     }
   },
   "submission": {
