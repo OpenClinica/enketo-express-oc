@@ -1161,6 +1161,7 @@ class Comment extends Widget {
             .concat( this.notes.logs )
             .sort( this._datetimeDesc.bind( this ) );
 
+        this._textAreaHandler( true );
         // Do not display DN questions that have no history.
         if ( items.length === 0 ) {
             return;
@@ -1193,6 +1194,7 @@ class Comment extends Widget {
     }
 
     _deprintify() {
+        this._textAreaHandler();
         if ( this.question.classList.contains( 'printified' ) ) {
             this.question.classList.remove( 'printified' );
             this.question.querySelector( '.dn-temp-print' ).remove();
@@ -1200,6 +1202,22 @@ class Comment extends Widget {
             const existingLabel = this.question.querySelector( '.question-label.active' );
             existingLabel.textContent = existingLabel.dataset.original;
             delete existingLabel.dataset.original;
+        }
+    }
+
+    _textAreaHandler( init ) {
+        const textarea = this.linkedQuestion.querySelector( 'textarea' );
+        if ( textarea ) {
+            const printInputText = this.linkedQuestion.querySelector( `.print-input-text` );
+            if ( init ) {
+                // Copy text area value to text-print widget
+                printInputText.innerHTML = textarea.value.replace( /\n/g, '<br>' );
+                textarea.classList.remove( 'default-print' );
+            } else {
+                // Reset text-print widget value
+                printInputText.innerHTML = '';
+                textarea.classList.add( 'default-print' );
+            }
         }
     }
 
