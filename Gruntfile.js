@@ -262,7 +262,7 @@ module.exports = grunt => {
 
                 return transformer.transform( {
                     xform: xformStr,
-                    includeRelevantMsg: true
+                    openclinica: true
                 } )
                     .then( function( result ) {
                         forms[ filePath.substring( filePath.lastIndexOf( '/' ) + 1 ) ] = {
