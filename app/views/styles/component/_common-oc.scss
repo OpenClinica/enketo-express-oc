@@ -94,7 +94,7 @@ $secondary-color: #eeeeee;
             }
         }
 
-        // hide constraint and required messages that are descendants of an 
+        // hide constraint and required messages that are descendants of an
         // irrelevant group
         .or-constraint-msg.active,
         .or-required-msg.active {
@@ -102,7 +102,6 @@ $secondary-color: #eeeeee;
         }
     }
 }
-
 
 .fieldsubmission-status {
     order: 15;
@@ -261,6 +260,20 @@ $secondary-color: #eeeeee;
     @extend .or-required-msg;
     color: #4f89bd !important;
     display: block !important;
+}
+
+// multiple constraints, see equivalent rules in enketo-core
+@for $number from 1 through $max-constraints {
+    .invalid-constraint#{$number} {
+        @include question-invalid;
+        .or-constraint#{$number}-msg.active {
+            @include question-error-message;
+            display: block;
+        }
+    }
+    .or-constraint#{$number}-msg{
+        display: none;
+    }
 }
 
 .pages~.form-footer {
