@@ -97,7 +97,7 @@ function _readonlify( formParts, notesEnabled ) {
     console.log( 'Calculations restricted to clinicaldata only.' );
     calculationModule.originalUpdate = calculationModule.update;
     calculationModule.update = function( updated ) {
-        return calculationModule.originalUpdate.call( this, updated, '[oc-external="clinicaldata"]' );
+        return calculationModule.originalUpdate.call( this, updated, '[data-oc-external="clinicaldata"]' );
     };
 
     // Completely disable preload items

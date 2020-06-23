@@ -15,8 +15,8 @@ class StrictClass extends Widget {
         const classes = [ 'required', 'constraint' ];
 
         [
-            '[oc-required-type="strict"]',
-            '[oc-constraint-type="strict"]'
+            '[data-oc-required-type="strict"]',
+            '[data-oc-constraint-type="strict"]'
         ].forEach( ( selector, i ) => {
             [ ...this.element.querySelectorAll( selector ) ].map( el => el.closest( '.question' ) )
                 // If calculation without form control, exclude it;

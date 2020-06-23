@@ -608,7 +608,7 @@ function _doNotSubmit( fullPath ) {
     // no need to check on cloned radiobuttons, selects or textareas
     const pathWithoutPositions = fullPath.replace( /\[[0-9]+\]/g, '' );
 
-    return !!form.view.$.get( 0 ).querySelector( `input[oc-external="clinicaldata"][name="${pathWithoutPositions}"]` );
+    return !!form.view.$.get( 0 ).querySelector( `input[data-oc-external="clinicaldata"][name="${pathWithoutPositions}"]` );
 }
 
 function _setFormEventHandlers() {
