@@ -9,6 +9,7 @@ import './relevant';
 import './required';
 import './page';
 import './repeat';
+import './input';
 
 /**
  * This function doesn't actually evaluate constraints. It triggers
