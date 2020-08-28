@@ -35,6 +35,7 @@ router
         next();
     } )
     .get( '/max-size/:encrypted_enketo_id_single', maxSize )
+    .get( '/max-size/:encrypted_enketo_id_view', maxSize )
     .get( '/max-size/:encrypted_enketo_id_fs_c', maxSize )
     .get( '/max-size/:encrypted_enketo_id_view_dn', maxSize )
     .get( '/max-size/:encrypted_enketo_id_view_dnc', maxSize )

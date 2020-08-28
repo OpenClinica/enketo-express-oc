@@ -99,7 +99,7 @@ branchModule.activate = function( $branchNode ) {
 
     this.setDisabledProperty( $branchNode, false );
     if ( branchNode.matches( '.question' ) ) {
-        const control = $branchNode[ 0 ].querySelector( 'input, select, textarea' );
+        const control = $branchNode[ 0 ].querySelector( 'input:not(.ignore), select:not(.ignore), textarea:not(.ignore)' );
         this.form.setValid( control, 'relevant' );
         // Re-show any constraint error message when the relevant error has been removed.
         // Since validateInput looks at both required and constraint, and we don't want required
@@ -127,7 +127,7 @@ branchModule.deactivate = function( $branchNode ) {
     let name;
     let index = 0;
     let value;
-    const $control = $( $branchNode[ 0 ].querySelector( 'input, select, textarea' ) );
+    const $control = $( $branchNode[ 0 ].querySelector( 'input:not(.ignore), select:not(.ignore), textarea:not(.ignore)' ) );
     const control = $control[ 0 ];
 
     if ( $branchNode.is( '.question' ) ) {

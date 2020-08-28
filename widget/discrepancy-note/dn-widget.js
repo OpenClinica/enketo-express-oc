@@ -164,7 +164,7 @@ class Comment extends Widget {
             const irrelevantGroupAncestor = q.closest( '.invalid-relevant' );
 
             if ( irrelevantGroupAncestor ) {
-                const value = this.options.helpers.getModelValue( $( this.linkedQuestion.querySelector( 'input, select, textarea' ) ) );
+                const value = this.options.helpers.getModelValue( $( this.linkedQuestion.querySelector( 'input:not(.ignore), select:not(.ignore), textarea:not(.ignore)' ) ) );
                 if ( value && currentStatus !== 'updated' && currentStatus !== 'new' ) {
                     // This query may not always select the correct error message if the group contains multiple irrelevant error messages
                     errorEl = irrelevantGroupAncestor ? irrelevantGroupAncestor.querySelector( '.or-relevant-msg.active' ) : null;
@@ -218,7 +218,7 @@ class Comment extends Widget {
      */
     _setDisabledHandler() {
         const that = this;
-        const target = this.linkedQuestion.querySelector( 'input, select, textarea' );
+        const target = this.linkedQuestion.querySelector( 'input:not(.ignore), select:not(.ignore), textarea:not(.ignore)' );
 
         $( this.linkedQuestion ).on( 'hiding.oc', () => {
             // For now there is no need to double-check if this question has a relevant attribute
@@ -241,9 +241,6 @@ class Comment extends Widget {
                     that._addQuery( t( 'widget.dn.autoclosed' ), 'closed', '', false, SYSTEM_USER, 'comment', item.thread_id || 'NULL' );
                 }
             } );
-
-
-
         } );
     }
 
@@ -252,7 +249,7 @@ class Comment extends Widget {
      */
     _setValueChangeHandler() {
         const that = this;
-        let previousValue = this.options.helpers.getModelValue( $( this.linkedQuestion.querySelector( 'input, select, textarea' ) ) );
+        let previousValue = this.options.helpers.getModelValue( $( this.linkedQuestion.querySelector( 'input:not(.ignore), select:not(.ignore), textarea:not(.ignore)' ) ) );
 
         $( this.linkedQuestion ).on( `${events.XFormsValueChanged().type} inputupdate`, evt => {
             const currentValue = that.options.helpers.getModelValue( $( evt.target ) );
@@ -385,6 +382,8 @@ class Comment extends Widget {
     _showCommentModal() {
         const range = document.createRange();
         const closeButtonHtml = '<button class="btn-icon-only or-comment-widget__content__btn-close-x" type="button">&times;</button>';
+        const newQueryButtonHtml = `<button class="btn btn-primary small" data-type="comment"><span class="icon icon-plus"> </span> ${t( 'widget.dn.addnewtext' )}</button>`;
+        const newAnnotationButtonHtml = `<button class="btn btn-primary small" data-type="annotation"><span class="icon icon-plus"> </span> ${t( 'widget.dn.addnewtext' )}</button>`;
         this.element.closest( 'form' ).dispatchEvent( events.Heartbeat() );
         const fragment = range.createContextualFragment(
             `<section class="widget or-comment-widget">
@@ -396,7 +395,7 @@ class Comment extends Widget {
                             <a id="dn-history" href="#" data-thread="*">${t( 'widget.dn.allhistory' )}</a>
                         </h3>
                         <h3 class="or-comment-widget__nav__main"><span class="or-comment-widget__nav__main__title">${t( 'widget.dn.queries' )}</span>
-                            <button class="btn btn-primary small" data-type="comment"><span class="icon icon-plus"> </span> ${t( 'widget.dn.addnewtext' )}</button>
+                            ${settings.type !== 'view' ? newQueryButtonHtml : ''}
                         </h3>
                         <ul>
                             ${ this._getThreadFirsts( this.notes, 'comment' )
@@ -413,7 +412,7 @@ class Comment extends Widget {
         .join( '' )}
                         </ul>
                         <h3 class="or-comment-widget__nav__main"><span class="or-comment-widget__nav__main__title">${t( 'widget.dn.annotations' )}</span>
-                            <button class="btn btn-primary small" data-type="annotation"><span class="icon icon-plus"> </span> ${t( 'widget.dn.addnewtext' )}</button>
+                            ${settings.type !== 'view' ? newAnnotationButtonHtml : ''}
                         </h3>
                         <ul>
                             ${ this._getThreadFirsts( this.notes, 'annotation' )
@@ -862,9 +861,7 @@ class Comment extends Widget {
         } else {
             const status = this.type !== 'comment' ? null : ( this.threadId ? this._getQueryThreadStatus( this.notes, this.threadId ) : null );
 
-            if ( !settings.dnCloseButton && ( status === 'closed' || status === 'closed-modified' ) ){
-                form.append( range.createContextualFragment( '<div class="alert-box info">You do not have permission to re-open this query. You can add a new query if needed.</div>' ) );
-
+            if ( settings.type === 'view' || ( !settings.dnCloseButton && ( status === 'closed' || status === 'closed-modified' ) ) ){
                 return;
             }
 
@@ -1223,7 +1220,7 @@ class Comment extends Widget {
             </div>` ) );
 
         const existingLabel = this.question.querySelector( '.question-label.active' );
-        const control = this.linkedQuestion.querySelector( 'input, select, textarea' );
+        const control = this.linkedQuestion.querySelector( 'input:not(.ignore), select:not(.ignore), textarea:not(.ignore)' );
         const name = control ? control.dataset.name || control.name : null;
         const questionName = name ? name.substring( name.lastIndexOf( '/' ) + 1 ) : '?';
         const parser = new DOMParser;

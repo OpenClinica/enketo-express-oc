@@ -10,6 +10,7 @@ import './required';
 import './page';
 import './repeat';
 import './input';
+import './download-utils';
 
 /**
  * This function doesn't actually evaluate constraints. It triggers
@@ -57,15 +58,14 @@ const constraintUpdate = function( updated ) {
  * @return {[type]}         [description]
  */
 const relevantErrorUpdate = function( updated ) {
-    let $nodes;
-
-    $nodes = this.getRelatedNodes( 'name', '[data-relevant]', updated )
-        .closest( '.invalid-relevant' )
-        .map( function() {
-            return $( this ).is( '[data-relevant]' ) ? this : this.querySelector( '[data-relevant]' );
+    const nodes = this.getRelatedNodes( 'data-relevant', '', updated ).get()
+        .concat( this.getRelatedNodes( 'name', '[data-relevant]', updated ).get() )
+        .filter( control => !!control.closest( '.invalid-relevant' ) )
+        .map( n => {
+            return n.matches( '[data-relevant]' ) ? n : n.querySelector( '[data-relevant]' );
         } );
 
-    this.relevant.updateNodes( $nodes );
+    this.relevant.updateNodes( $( nodes ) );
 };
 
 const originalInit = Form.prototype.init;
@@ -97,7 +97,6 @@ Form.prototype.init = function() {
     }
 
     const loadErrors = originalInit.call( this );
-
 
     initialized = true;
 
@@ -131,6 +130,8 @@ Form.prototype.specialOcLoadValidate = function( includeRequired ) {
     } );
 };
 
+// No-op because OC clears non-relevant values immediately. Save a huge amount of time upon 'Close'.
+Form.prototype.clearNonRelevant = () => {};
 
 /**
  * Skip constraint (and required) validation if question is currently marked with "invalid-relevant" error.

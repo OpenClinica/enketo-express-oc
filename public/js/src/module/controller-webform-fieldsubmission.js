@@ -27,15 +27,17 @@ const formOptions = {
 };
 const inputUpdateEventBuffer = [];
 
-
 function init( formEl, data, loadWarnings = [] ) {
-    let advice;
     let loadErrors = [];
 
     formprogress = document.querySelector( '.form-progress' );
 
     return new Promise( resolve => {
+        let staticDefaultNodes = [];
+        let m;
         const goToErrorLink = settings.goToErrorUrl ? `<a href="${settings.goToErrorUrl}">${settings.goToErrorUrl}</a>` : '';
+
+        fieldSubmissionQueue = new FieldSubmissionQueue();
 
         if ( data.instanceAttachments ) {
             fileManager.setInstanceAttachments( data.instanceAttachments );
@@ -44,18 +46,15 @@ function init( formEl, data, loadWarnings = [] ) {
         // Create separate model just to identify static default values.
         // We do this before the inputupdate listener to avoid triggering a fieldsubmission for instanceID
         // in duplicate/triplicate.
-        const m = new FormModel( { modelStr: data.modelStr } );
-        m.init();
-        const staticDefaultNodes = [ ...m.node( null, null, { noEmpty: true } ).getElements() ]
-            .filter( node => node !== m.getMetaNode( 'instanceID' ).getElement() );
-
+        if ( !data.instanceStr ){
+            m = new FormModel( { modelStr: data.modelStr } );
+            m.init();
+            staticDefaultNodes = [ ...m.node( null, null, { noEmpty: true } ).getElements() ]
+                .filter( node => node !== m.getMetaNode( 'instanceID' ).getElement() );
+        }
         form = new Form( formEl, data, formOptions );
 
-        // Additional layer of security to disable submissions in readonly views.
-        // Should not be necessary to do this.
         fieldSubmissionQueue = new FieldSubmissionQueue();
-
-
 
         // Buffer inputupdate events (DURING LOAD ONLY), in order to eventually log these
         // changes in the DN widget after it has been initalized
@@ -208,7 +207,7 @@ function init( formEl, data, loadWarnings = [] ) {
                 loadErrors.unshift( error.message || t( 'error.unknown' ) );
             }
 
-            advice = ( data.instanceStr ) ? t( 'alert.loaderror.editadvice' ) : t( 'alert.loaderror.entryadvice' );
+            const advice = ( data.instanceStr ) ? t( 'alert.loaderror.editadvice' ) : t( 'alert.loaderror.entryadvice' );
             gui.alertLoadErrors( loadErrors, advice );
         } )
         .then( () => {
@@ -304,7 +303,7 @@ function _closeRegular( offerAutoqueries = true ) {
 
             return fieldSubmissionQueue.submitAll()
                 .then( () => {
-                    if ( Object.keys( fieldSubmissionQueue.get() ).length > 0 ) {
+                    if ( fieldSubmissionQueue.enabled && Object.keys( fieldSubmissionQueue.get() ).length > 0 ) {
                         throw new Error( t( 'fieldsubmission.alert.close.msg2' ) );
                     } else {
                         // this event is used in communicating back to iframe parent window
@@ -366,7 +365,7 @@ function _closeSimple() {
 
             return fieldSubmissionQueue.submitAll()
                 .then( () => {
-                    if ( Object.keys( fieldSubmissionQueue.get() ).length > 0 ) {
+                    if ( fieldSubmissionQueue.enabled && Object.keys( fieldSubmissionQueue.get() ).length > 0 ) {
                         throw new Error( t( 'fieldsubmission.alert.close.msg2' ) );
                     } else {
                         // this event is used in communicating back to iframe parent window
@@ -460,7 +459,7 @@ function _closeParticipant() {
 
     // If the form is untouched, and has not loaded a record, allow closing it without any checks.
     // TODO: can we ignore calculations?
-    if ( settings.type !== 'edit' && Object.keys( fieldSubmissionQueue.get() ).length === 0 && fieldSubmissionQueue.submittedCounter === 0 ) {
+    if ( settings.type !== 'edit' &&  ( Object.keys( fieldSubmissionQueue.get() ).length === 0 || !fieldSubmissionQueue.enabled ) && fieldSubmissionQueue.submittedCounter === 0 ) {
         return Promise.resolve()
             .then( () => {
                 gui.alert( t( 'alert.submissionsuccess.redirectmsg' ), null, 'success' );
@@ -544,9 +543,7 @@ function _complete( bypassConfirmation = false, bypassChecks = false ) {
 
                 return fieldSubmissionQueue.submitAll()
                     .then( () => {
-                        const queueLength = Object.keys( fieldSubmissionQueue.get() ).length;
-
-                        if ( queueLength === 0 ) {
+                        if ( Object.keys( fieldSubmissionQueue.get() ).length === 0 ) {
                             instanceId = form.instanceID;
                             deprecatedId = form.deprecatedID;
                             if ( form.model.isMarkedComplete() ) {
@@ -640,13 +637,20 @@ function _setFormEventHandlers() {
     form.view.html.addEventListener( events.DataUpdate().type, event => {
         const updated = event.detail || {};
         const instanceId = form.instanceID;
-        let file;
+        let filePromise;
 
         if ( updated.cloned ) {
             // This event is fired when a repeat is cloned. It does not trigger
             // a fieldsubmission.
             return;
         }
+
+        // This is a bit of a hacky test for /meta/instanceID and /meta/deprecatedID. Both meta and instanceID nodes could theoretically have any namespace prefix.
+        // and if the namespace is not in the default or the "http://openrosa.org/xforms" namespace it should actually be submitted.
+        if ( /meta\/(.*:)?instanceID$/.test( updated.fullPath ) || /meta\/(.*:)?deprecatedID$/.test( updated.fullPath ) ){
+            return;
+        }
+
         if ( !updated.xmlFragment ) {
             console.error( 'Could not submit field. XML fragment missing. (If repeat was deleted, this is okay.)' );
 
@@ -664,7 +668,9 @@ function _setFormEventHandlers() {
             return;
         }
         if ( updated.file ) {
-            file = fileManager.getCurrentFile( updated.file );
+            filePromise = fileManager.getCurrentFile( updated.file );
+        } else {
+            filePromise = Promise.resolve();
         }
 
         // remove the Participate class that shows a Close button on every page
@@ -673,8 +679,11 @@ function _setFormEventHandlers() {
         // Only now will we check for the deprecatedID value, which at this point should be (?)
         // populated at the time the instanceID dataupdate event is processed and added to the fieldSubmission queue.
         postHeartbeat();
-        fieldSubmissionQueue.addFieldSubmission( updated.fullPath, updated.xmlFragment, instanceId, form.deprecatedID, file );
-        fieldSubmissionQueue.submitAll();
+        filePromise
+            .then( file => {
+                fieldSubmissionQueue.addFieldSubmission( updated.fullPath, updated.xmlFragment, instanceId, form.deprecatedID, file );
+                fieldSubmissionQueue.submitAll();
+            } );
     } );
 
     // Before repeat removal from view and model
@@ -798,7 +807,7 @@ function _setButtonEventHandlers() {
                     _autoAddQueries( form.view.html.querySelectorAll( '.invalid-constraint' ) );
                     _autoAddReasonQueries( reasons.getInvalidFields() );
                 }
-                if ( Object.keys( fieldSubmissionQueue.get() ).length > 0 ) {
+                if ( fieldSubmissionQueue.enabled && Object.keys( fieldSubmissionQueue.get() ).length > 0 ) {
                     return 'Any unsaved data will be lost';
                 }
             }

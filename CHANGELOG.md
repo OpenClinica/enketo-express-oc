@@ -2,6 +2,31 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+[2.3.8] - 2020-07-23
+----------------------
+##### Changed
+- Updated French translation
+- Markdown lists no longer require preceding newline.
+- Markdown ordered lists detect non-1 numbering start.
+- Add rel="noopener" to markdown links.
+- Focus date/time/datetime pickers when clicking label.
+
+##### Fixed
+- Pulldata fails to work when the search value looks like a number in scientific notation.
+- Text fields with overflowing text have invisible overflow on PDF.
+- Textarea contains unnecessary space character.
+- In Firefox the native datepicker launches when the question label is clicked.
+
+[2.3.7] - 2020-07-10
+----------------------
+##### Changed
+- Do not check quotas when the linked server URL is empty, avoiding slow Redis queries.
+- Changed when dataupdate event is fired for setvalue/odk-instance-first-load actions to facilitate custom clients with field submissions (like OpenClinica).
+- Speed up loading.
+
+##### Fixed
+- Docker `create_config.py` script stored `encryption key` in the wrong place
+
 [2.3.6] - 2020-06-12
 ----------------------
 ##### Changed
@@ -11,6 +36,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ##### Fixed
 - The "selected" message in the desktop select picker does not switch language immediately.
 - Image-map widget is transparent, not visible but functional, when it is included on a non-first page.
+- Forms no longer work in Edge Legacy.
 
 [2.3.5] - 2020-06-05
 ---------------------

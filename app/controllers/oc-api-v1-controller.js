@@ -423,6 +423,7 @@ function _generateWebformUrls( id, req ) {
     const idFsC = `${utils.insecureAes192Encrypt( id, keys.fsC )}`;
     const idFsParticipant = `${utils.insecureAes192Encrypt( id, keys.fsParticipant )}`;
     const idEditHeadless = `${utils.insecureAes192Encrypt( id, keys.editHeadless )}`;
+    const idPreview = utils.insecureAes192Encrypt( id, keys.preview );
 
     let url;
 
@@ -431,7 +432,7 @@ function _generateWebformUrls( id, req ) {
     switch ( type ) {
         case 'preview': {
             const queryString = _generateQueryString( [ req.defaultsQueryParam, req.parentWindowOriginParam, req.goToErrorUrl, req.jini ] );
-            url = `${BASEURL}preview/${IFRAMEPATH}${id}${queryString}${hash}`;
+            url = `${BASEURL}preview/${IFRAMEPATH}${idPreview}${queryString}${hash}`;
             break;
         }
         case 'preview-participant': {

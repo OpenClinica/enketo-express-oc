@@ -103,7 +103,7 @@
             "ongoing": "Saving...",
             "success": "All changes saved.",
             "fail": "Failed to save changes.",
-            "disabled": "Failed to save changes due to form loading error."
+            "disabled": "Saving is disabled."
         },
         "readonly": {
             "msg": "You're in read-only mode."

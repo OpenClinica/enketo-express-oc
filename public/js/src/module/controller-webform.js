@@ -6,7 +6,7 @@ import gui from './gui';
 import connection from './connection';
 import settings from './settings';
 import { Form } from './form';
-import { updateDownloadLink } from 'enketo-core/src/js/utils';
+import downloadUtils from 'enketo-core/src/js/download-utils';
 import events from './event';
 import fileManager from './file-manager';
 import { t, localize, getCurrentUiLanguage, getDesiredLanguage } from './translator';
@@ -671,7 +671,7 @@ function updateDownloadLinkAndClick( anchor, file ) {
     const objectUrl = URL.createObjectURL( file );
 
     anchor.textContent = file.name;
-    updateDownloadLink( anchor, objectUrl, file.name );
+    downloadUtils.updateDownloadLink( anchor, objectUrl, file.name );
     anchor.click();
 }
 

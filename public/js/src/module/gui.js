@@ -595,23 +595,18 @@ function _delay( delay = 400 ) {
  */
 function applyPrintStyle() {
 
-    const dns = document.querySelectorAll( '.or-appearance-dn' );
-    dns.forEach( ( dn ) => {
-        dn.dispatchEvent( events.Printify() );
-    } );
-
     imagesLoaded()
         .then( () => {
+            printHelper.openAllDetails();
+            document.querySelectorAll( '.question' ).forEach( question => question.dispatchEvent( events.Printify() ) );
+
             if ( formTheme === 'grid' || ( !formTheme && printHelper.isGrid() ) ) {
                 const paper = { format: settings.format, landscape: settings.landscape, scale: settings.scale, margin: settings.margin };
 
-                return printHelper.fixGrid( paper );
+                return printHelper.fixGrid( paper, 800 );
             }
         } )
-        .then( () => // allow some time for repainting
-            new Promise( resolve => {
-                setTimeout( resolve, 300 );
-            } ) )
+        .then( _delay )
         .then( () => {
             window.printReady = true;
         } )
@@ -620,7 +615,7 @@ function applyPrintStyle() {
 
 function imagesLoaded() {
     return new Promise( resolve => {
-        let images = Array.prototype.slice.call( document.images );
+        let images = [ ... document.images ];
         const interval = setInterval( () => {
             images = images.filter( image => !image.complete );
             if ( images.length === 0 ) {
