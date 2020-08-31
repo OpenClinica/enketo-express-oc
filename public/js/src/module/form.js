@@ -281,4 +281,37 @@ Form.prototype.isValid = function( node ) {
     return this.view.html.querySelector( '.invalid-required, .invalid-constraint, .invalid-relevant' ) === null;
 };
 
+
+/**
+ *
+ * @param {*} control - form control HTML element
+ * @param {*} result - result object obtained from Nodeset.validate
+ */
+Form.prototype.updateValidityInUi = function( control, result ){
+    console.log( 'result', result );
+    const passed = result.requiredValid !== false ;
+
+    // Update UI
+    if ( result.requiredValid === false ) {
+        result.constraintValid.forEach( ( valid, index ) => this.setValid( control, index === 0 ? 'constraint' : `constraint${index}` ) );
+        this.setInvalid( control, 'required' );
+    } else {
+        this.setValid( control, 'required' );
+        result.constraintValid.forEach( ( valid, index ) => {
+            const cls = index === 0 ? 'constraint' : `constraint${index}`;
+            if ( valid === true ){
+                this.setValid( control, cls );
+            } else if ( valid === false ){
+                passed == false;
+                this.setInvalid( control, cls );
+            }
+            // no need to do anything if valid === undefined
+        } );
+    }
+
+    if ( !passed ){
+        control.dispatchEvent( events.Invalidated() );
+    }
+};
+
 export { Form };

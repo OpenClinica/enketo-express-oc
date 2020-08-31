@@ -10,6 +10,9 @@ import extendXPath from 'enketo-xpath-extensions-oc';
 import sniffer from './sniffer';
 extendXPath( XPathJS );
 
+// load customized nodeset module
+import './nodeset';
+
 Model.prototype.getUpdateEventData = function( el, type ) {
     let fullPath;
     let xmlFragment;

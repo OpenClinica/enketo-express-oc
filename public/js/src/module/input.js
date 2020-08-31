@@ -8,8 +8,7 @@ inputModule.getConstraint = function( control ) {
     // Note if a spot is missing, e.g. constraint11, this will (deliberately) result in an undefined value,
 
     return Array.from( Array( 21 ) )
-        .map( ( val, i ) => i === 0 ? control.dataset.constraint : control.dataset[`ocConstraint${i}`] )
-        .filter( val => !!val );
+        .map( ( val, i ) => i === 0 ? control.dataset.constraint : control.dataset[`ocConstraint${i}`] );
 };
 
 
