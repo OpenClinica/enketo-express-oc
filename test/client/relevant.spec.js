@@ -1,7 +1,8 @@
-
 import { Form } from '../../public/js/src/module/form';
 import forms from './forms/forms';
 import chai from 'chai';
+import events from '../../public/js/src/module/event';
+import '../../public/js/src/module/form-model';
 const expect = chai.expect;
 const range = document.createRange();
 
@@ -101,22 +102,26 @@ describe( 'Customized Branching Logic', () => {
             beforeEach( done => {
                 form = loadForm( 'relevant_constraint_required.xml' );
                 form.init();
-                form.view.$.find( a ).val( 'afdgsgsfafdfadssf' ).trigger( 'change' );
-                form.view.$.find( b ).val( 'diarrhea' ).trigger( 'change' );
+                form.view.html.querySelector( a ).value =  'afdgsgsfafdfadssf';
+                form.view.html.querySelector( a ).dispatchEvent( events.Change() );
+                form.view.html.querySelector( b ).value =  'diarrhea';
+                form.view.html.querySelector( b ).dispatchEvent( events.Change() );
                 // add value to c that fails constraint
-                form.view.$.find( c ).val( 5 ).trigger( 'change' );
-                // make c irrelevant (and still failing constraint validation too)
-                form.view.$.find( b ).val( 'diarrheadafsdsfdasd' ).trigger( 'change' );
+                form.view.html.querySelector( c ).value =  5;
+                form.view.html.querySelector( c ).dispatchEvent(  events.Change() );
                 setTimeout( () => {
-                    done();
+                    // make c irrelevant (and still failing constraint validation too)
+                    form.view.html.querySelector( b ).value = 'diarrheadafsdsfdasd';
+                    form.view.html.querySelector( b ).dispatchEvent(  events.Change() );
+                    setTimeout( done, 1000 );
                 }, 500 );
             } );
 
             it( 'shows relevant error but not constraint error when form.validate() is called', () => form.validate()
                 .then( result => Promise.all( [
                     expect( result ).to.equal( false ),
-                    expect( form.view.$.find( c ).closest( '.question' ).hasClass( 'invalid-relevant' ) ).to.equal( true ),
-                    expect( form.view.$.find( c ).closest( '.question' ).hasClass( 'invalid-constraint' ) ).to.equal( false ),
+                    expect( form.view.html.querySelector( c ).closest( '.question' ).classList.contains( 'invalid-relevant' ) ).to.equal( true ),
+                    expect( form.view.html.querySelector( c ).closest( '.question' ).classList.contains( 'invalid-constraint' ) ).to.equal( false ),
                 ] ) ) );
 
         } );

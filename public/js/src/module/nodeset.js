@@ -9,7 +9,7 @@ import types from 'enketo-core/src/js/types';
  * @return {Promise} wrapping an array of boolean or undefined indicating if the value is valid or not; error also indicates invalid field, or problem validating it
  */
 Nodeset.prototype.validateConstraintAndType = function( expressions, xmlDataType ) {
-    console.log( 'expresssions', expressions );
+
     if ( !xmlDataType || typeof types[ xmlDataType.toLowerCase() ] === 'undefined' ) {
         xmlDataType = 'string';
     }
@@ -17,7 +17,7 @@ Nodeset.prototype.validateConstraintAndType = function( expressions, xmlDataType
     const value = this.getVal().toString();
 
     if ( value.toString() === '' ) {
-        return Promise.resolve( true );
+        return expressions.map( () => undefined );
     }
 
     return expressions.map( expr => {
