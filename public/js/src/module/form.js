@@ -252,22 +252,45 @@ Form.prototype.strictConstraintCheckHandler = function( evt, input ) {
     }
 };
 
+/**
+ * Removes an invalid mark on a question in the form UI.
+ * OC: customized to also work on groups
+ *
+ * @param {Element} control - form control HTML element
+ * @param {string} [type] - One of "constraint", "required" and "relevant".
+ */
+Form.prototype.setValid = function( control, type ) {
+    const wrap = control.closest( '.question, .calculation, .or-group, .or-group-data' );
 
-// customized to also work on groups
-Form.prototype.setValid = function( node, type ) {
-    const classes = ( type ) ? [ `invalid-${type}` ] : [ 'invalid-constraint', 'invalid-required', 'invalid-relevant' ];
-    node.closest( '.question, .calculation, .or-group, .or-group-data' ).classList.remove( ...classes );
+    if ( !wrap ){
+        // TODO: this condition occurs, at least in tests for itemsets, but we need find out how.
+        return;
+    }
+
+    const classes = type ? [ `invalid-${type}` ] : [ ...wrap.classList ].filter( cl => cl.indexOf( 'invalid-' ) === 0 );
+    wrap.classList.remove( ...classes );
 };
 
-// customized to also work on groups
-Form.prototype.setInvalid = function( node, type ) {
-    type = type || 'constraint';
+/**
+ * Marks a question as invalid in the form UI.
+ * OC: customized to also work on groups
+ *
+ * @param {Element} control - form control HTML element
+ * @param {string} [type] - One of "constraint", "required" and "relevant".
+ */
+Form.prototype.setInvalid = function( control, type = 'constraint' ) {
+    const wrap = control.closest( '.question, .calculation, .or-group, .or-group-data' );
 
-    if ( config.validatePage === false && this.isValid( node ) ) {
+    if ( !wrap ){
+        // TODO: this condition occurs, at least in tests for itemsets, but we need find out how.
+        return;
+    }
+
+    if ( config.validatePage === false && this.isValid( control ) ) {
         this.blockPageNavigation();
     }
 
-    node.closest( '.question, .calculation, .or-group, .or-group-data' ).classList.add( `invalid-${type}` );
+    wrap.classList.add( `invalid-${type}` );
 };
 
 Form.prototype.isValid = function( node ) {
