@@ -109,12 +109,10 @@ describe( 'Customized Branching Logic', () => {
                 // add value to c that fails constraint
                 form.view.html.querySelector( c ).value =  5;
                 form.view.html.querySelector( c ).dispatchEvent(  events.Change() );
-                setTimeout( () => {
-                    // make c irrelevant (and still failing constraint validation too)
-                    form.view.html.querySelector( b ).value = 'diarrheadafsdsfdasd';
-                    form.view.html.querySelector( b ).dispatchEvent(  events.Change() );
-                    setTimeout( done, 1000 );
-                }, 500 );
+                // make c irrelevant (and still failing constraint validation too)
+                form.view.html.querySelector( b ).value = 'diarrheadafsdsfdasd';
+                form.view.html.querySelector( b ).dispatchEvent(  events.Change() );
+                setTimeout( done, 500 );
             } );
 
             it( 'shows relevant error but not constraint error when form.validate() is called', () => form.validate()

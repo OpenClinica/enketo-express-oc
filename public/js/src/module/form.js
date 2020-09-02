@@ -12,6 +12,16 @@ import './repeat';
 import './input';
 import './download-utils';
 
+Form.constraintNames = Array.from( Array( 21 ) ).map( ( val, i ) => `constraint${i !== 0 ? i : ''}` );
+
+// TODO: would perhaps be more elegant if enketo-transformer didn't add "oc-"" to the attribute, so we wouldn't have to override this function.
+Object.defineProperty( Form, 'constraintAttributes', {
+    // only returns odd die sides
+    get: function() {
+        return Form.constraintNames.map( ( n, i ) =>  `data-${i === 0 ? n : 'oc-' + n}` );
+    }
+} );
+
 /**
  * This function doesn't actually evaluate constraints. It triggers
  * an event on nodes that have constraint dependency on the changed node(s).
@@ -119,8 +129,8 @@ Form.prototype.specialOcLoadValidate = function( includeRequired ) {
     $collectionToValidate.each( function() {
         const control = this;
         that.validateInput( control )
-            .then( passed => {
-                if ( !passed && !includeRequired ) {
+            .then( result => {
+                if ( !result.requiredValid && !includeRequired ) {
                     // Undo the displaying of a required error message upon load.
                     // Note: a failed required means there cannot be a failed constraint, because they are mutually exclusive
                     // in the engine (constraint is only evaluated if question has a value).
@@ -141,8 +151,6 @@ Form.prototype.clearNonRelevant = () => {};
  * @return {[type]}        [description]
  */
 Form.prototype.validateInput = function( control ) {
-    const that = this;
-
     // There is a condition where a value change results in both an invalid-relevant and invalid-constraint,
     // where the invalid constraint is added *after* the invalid-relevant. I can reproduce in automated test (not manually).
     // It is probably related due to the asynchronicity of the constraint evaluation.
@@ -153,15 +161,15 @@ Form.prototype.validateInput = function( control ) {
     //
     // This is very unfortunate, but these are the kind of acrobatics that are necessary to "fight" the built-in behavior of Enketo's form engine.
     return originalValidateInput.call( this, control )
-        .then( passed => {
-            if ( !passed ) {
-                const question = control.closest( '.question' );
-                if ( question && question.classList.contains( 'invalid-relevant' ) ) {
-                    that.constraintNames.forEach( constraint => that.setValid( control, constraint ) );
-                }
+        .then( result => {
+            const question = control.closest( '.question' );
+            const nonRelevant = !!question.closest( '.invalid-relevant' );
+            if ( question && nonRelevant ) {
+                // TODO: another perhaps more efficient approach would be to check with invalid-constraintN classes are currently present
+                Form.constraintNames.forEach( constraint => this.setValid( control, constraint ) );
             }
 
-            return passed;
+            return result;
         } );
 };
 
@@ -293,15 +301,23 @@ Form.prototype.setInvalid = function( control, type = 'constraint' ) {
     wrap.classList.add( `invalid-${type}` );
 };
 
+/**
+ * Checks whether the question is not currently marked as invalid. If no argument is provided, it checks the whole form.
+ * OC customization: added group
+ *
+ * @param {Element} node - form control HTML element
+ * @return {!boolean} Whether the question/form is not marked as invalid.
+ */
 Form.prototype.isValid = function( node ) {
+    const invalidSelectors = [ '.invalid-required', '.invalid-relevant' ].concat( this.constraintClassesInvalid );
     if ( node ) {
         const questionOrGroup = node.closest( '.question, .calculation, .or-group, .or-group-data' );
         const cls = questionOrGroup.classList;
 
-        return !cls.contains( 'invalid-required' ) && !cls.contains( 'invalid-constraint' && !cls.contains( 'invalid-relevant' ) );
+        return !invalidSelectors.some( selector => cls.contains( selector ) );
     }
 
-    return this.view.html.querySelector( '.invalid-required, .invalid-constraint, .invalid-relevant' ) === null;
+    return !this.view.html.querySelector( invalidSelectors.join( ', ' ) );
 };
 
 /**
