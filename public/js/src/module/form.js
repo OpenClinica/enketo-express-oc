@@ -14,12 +14,12 @@ import './download-utils';
 
 Form.constraintNames = Array.from( Array( 21 ) ).map( ( val, i ) => `constraint${i !== 0 ? i : ''}` );
 
-// TODO: would perhaps be more elegant if enketo-transformer didn't add "oc-"" to the attribute, so we wouldn't have to override this function.
+Object.defineProperty( Form, 'constraintClassesInvalid',  {
+    get: () => Form.constraintNames.map( n => `.invalid-${n}` )
+} );
+
 Object.defineProperty( Form, 'constraintAttributes', {
-    // only returns odd die sides
-    get: function() {
-        return Form.constraintNames.map( ( n, i ) =>  `data-${i === 0 ? n : 'oc-' + n}` );
-    }
+    get: () => Form.constraintNames.map( ( n, i ) =>  `data-${i === 0 ? n : 'oc-' + n}` )
 } );
 
 /**
