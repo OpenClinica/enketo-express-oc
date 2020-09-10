@@ -15,7 +15,7 @@ import './download-utils';
 Form.constraintNames = Array.from( Array( 21 ) ).map( ( val, i ) => `constraint${i !== 0 ? i : ''}` );
 
 Object.defineProperty( Form, 'constraintClassesInvalid',  {
-    get: () => Form.constraintNames.map( n => `.invalid-${n}` )
+    get: () => Form.constraintNames.map( n => `invalid-${n}` )
 } );
 
 Object.defineProperty( Form, 'constraintAttributes', {
