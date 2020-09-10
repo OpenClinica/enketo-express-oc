@@ -4,6 +4,7 @@ import { t } from '../../public/js/src/module/translator';
 import settings from '../../public/js/src/module/settings';
 import events from '../../public/js/src/module/event';
 import fileManager from '../../public/js/src/module/file-manager';
+import { Form } from '../../public/js/src/module/form';
 let currentUser;
 let users;
 let annotationIconDataUri;
@@ -157,8 +158,8 @@ class Comment extends Widget {
     }
 
     _setCloseHandler() {
-        let errorEl = null;
         this.linkedQuestion.addEventListener( events.AddQuery().type, event => {
+            let errorMsg = '';
             const q = event.target;
             const currentStatus = this._getCurrentStatus( this.notes );
             const irrelevantGroupAncestor = q.closest( '.invalid-relevant' );
@@ -167,17 +168,17 @@ class Comment extends Widget {
                 const value = this.options.helpers.getModelValue( $( this.linkedQuestion.querySelector( 'input:not(.ignore), select:not(.ignore), textarea:not(.ignore)' ) ) );
                 if ( value && currentStatus !== 'updated' && currentStatus !== 'new' ) {
                     // This query may not always select the correct error message if the group contains multiple irrelevant error messages
-                    errorEl = irrelevantGroupAncestor ? irrelevantGroupAncestor.querySelector( '.or-relevant-msg.active' ) : null;
+                    const errorEl = irrelevantGroupAncestor ? irrelevantGroupAncestor.querySelector( '.or-relevant-msg.active' ) : null;
+                    errorMsg = errorEl ? errorEl.textContent : '';
                 }
-            } else {
-                const errorType = q.classList.contains( 'invalid-constraint' ) ? 'constraint' : ( q.classList.contains( 'invalid-required' ) ? 'required' : ( q.classList.contains( 'invalid-relevant' ) ? 'relevant' : null ) );
-                if ( errorType && currentStatus !== 'updated' && currentStatus !== 'new' ) {
-                    // Always a new thread
-                    errorEl = q.querySelector( `.or-${errorType}-msg.active` );
+            } else if ( currentStatus !== 'updated' && currentStatus !== 'new' ){
+                errorMsg = this._getCurrentErrorMsg();
+                if ( !errorMsg && q.classList.contains( 'invalid-relevant' ) ){
+                    const errorEl = q.querySelector( '.or-relevant-msg.active' );
+                    errorMsg = errorEl ? errorEl.textContent : null;
                 }
             }
 
-            const errorMsg = errorEl ? errorEl.textContent : null;
             if ( errorMsg ) {
                 // Always a new thread
                 this._addQuery( t( 'widget.dn.autoconstraint', {
@@ -572,12 +573,16 @@ class Comment extends Widget {
             const el = this.linkedQuestion.querySelector( '.or-required-msg.active' );
 
             return el ? el.textContent : '';
-        } else if ( this.linkedQuestion.classList.contains( 'invalid-constraint' ) ) {
-            const el = this.linkedQuestion.querySelector( '.or-constraint-msg.active' );
-
-            return el ? el.textContent : '';
         } else {
-            return '';
+            return Form.constraintClassesInvalid.map( invalidClass => {
+                if ( this.linkedQuestion.classList.contains( invalidClass ) ) {
+                    const el = this.linkedQuestion.querySelector( `.${invalidClass.replace( 'invalid-','or-' )}-msg.active` );
+
+                    return el ? el.textContent : undefined;
+                }
+            } )
+                .filter( msg => msg )
+                .join( ' | ' );
         }
     }
 
