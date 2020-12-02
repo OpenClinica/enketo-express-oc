@@ -20,14 +20,26 @@ block script
     script#main-script(defer, module, src=`${basePath}${offlinePath || ''}/js/build/enketo-webform${suffix}-bundle.min.js`)
   else
     script#main-script(defer, module, src=`${basePath}${offlinePath || ''}/js/build/enketo-webform${suffix}-bundle.js`)
-  script(nomodule).
-    var mainScript = document.querySelector( '#main-script' );
-    var mainScriptSrc = mainScript.src;
-    mainScript.remove();
-    var script = document.createElement( 'script' );
-    script.type = 'text/javascript';
-    script.src = mainScriptSrc.replace('-bundle.', '-ie11-bundle.');
-    document.body.appendChild( script );
+  script.
+    if ( /rv:11.0/i.test(navigator.userAgent) || /Edge\/\d./i.test(navigator.userAgent) ) {
+      var mainScript = document.querySelector( '#main-script' );
+      var mainScriptSrc = mainScript.src;
+      if (mainScript.parentNode) {
+          mainScript.parentNode.removeChild(mainScript);
+      }
+      var ie11PolyfillScript = document.createElement( 'script' );
+      ie11PolyfillScript.type = 'text/javascript';
+      ie11PolyfillScript.src = mainScriptSrc.split('/js/build/')[0] + '/js/build/ie11-polyfill.min.js';
+      document.body.appendChild( ie11PolyfillScript );
+      var obscureIe11PolyfillScript = document.createElement( 'script' );
+      obscureIe11PolyfillScript.type = 'text/javascript';
+      obscureIe11PolyfillScript.src = mainScriptSrc.split('/js/build/')[0] + '/js/build/obscure-ie11-polyfills.js';
+      document.body.appendChild( obscureIe11PolyfillScript );
+      var script = document.createElement( 'script' );
+      script.type = 'text/javascript';
+      script.src = mainScriptSrc.replace('-bundle.', '-ie11-bundle.');
+      document.body.appendChild( script );
+    }
 
   -// load jini stuff asynchronously (OC)
   if jini && !headless
