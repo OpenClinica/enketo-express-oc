@@ -364,7 +364,7 @@ function _getExternalData( survey ) {
 
         survey.externalData = [ ...doc.querySelectorAll ( 'instance[id][src]' ) ]
             .map( instance => ( {
-                id:  instance.id,
+                id:  instance.id ? instance.id : instance.getAttribute( 'id' ),
                 src: instance.getAttribute( 'src' )
             } ) );
 
