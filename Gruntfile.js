@@ -175,12 +175,12 @@ module.exports = grunt => {
                 args: [ 'grunt', 'mochaTest:all' ]
             }
         },
-        terser: {
-            options: {
-                // https://github.com/enketo/enketo-express/issues/72
-                keep_classnames: true,
-            },
-            all: {
+        terser: { 
+            'default': {
+                options: {
+                    // https://github.com/enketo/enketo-express/issues/72
+                    keep_classnames: true,
+                },
                 files: bundles
                     .concat( bundles.map( bundle => bundle.replace( '-bundle.', '-ie11-bundle.' ) ) )
                     .map( bundle => [ bundle.replace( '.js', '.min.js' ), [ bundle ] ] )
@@ -190,6 +190,22 @@ module.exports = grunt => {
                         return o;
                     }, {} )
             },
+            'edge': {
+                options: {
+                    // https://github.com/enketo/enketo-express/issues/72
+                    keep_classnames: true,
+                    // https://github.com/OpenClinica/enketo-express-oc/issues/426
+                    keep_fnames: true
+                },
+                files: bundles
+                    .concat( bundles.map( bundle => bundle.replace( '-bundle.', '-ie11-bundle.' ) ) )
+                    .map( bundle => [ bundle.replace( '.js', '.min.js' ), [ bundle ] ] )
+                    .reduce( ( o, [ key, value ] ) => {
+                        o[ key ] = value;
+
+                        return o;
+                    }, {} )
+            }
         },
         env: {
             develop: {
@@ -284,11 +300,11 @@ module.exports = grunt => {
         grunt.log.writeln( `File ${WIDGETS_SASS} created` );
     } );
 
-    grunt.registerTask( 'default', [ 'locales', 'widgets', 'css', 'js', 'terser' ] );
+    grunt.registerTask( 'default', [ 'locales', 'widgets', 'css', 'js', 'terser:default' ] );
     grunt.registerTask( 'locales', [ 'shell:clean-locales', 'i18next' ] );
     grunt.registerTask( 'js', [ 'shell:clean-js', 'widgets', 'shell:rollup' ] );
     grunt.registerTask( 'js-ie11', [ 'shell:polyfill-ie11', 'shell:babel-ie11', 'shell:browserify-ie11' ] );
-    grunt.registerTask( 'build-ie11', [ 'js-ie11', 'terser' ] );
+    grunt.registerTask( 'build-ie11', [ 'js-ie11', 'terser:edge' ] );
     grunt.registerTask( 'css', [ 'shell:clean-css', 'system-sass-variables:create', 'sass' ] );
     grunt.registerTask( 'test', [ 'env:test', 'transforms', 'js', 'css', 'nyc:cover', 'karma:headless', 'shell:buildReadmeBadge', 'eslint:check' ] );
     grunt.registerTask( 'test-browser', [ 'env:test', 'transforms', 'css', 'karma:browsers' ] );
