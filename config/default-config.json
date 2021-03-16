@@ -27,6 +27,7 @@
     "default theme": "oc",
     "themes supported": [],
     "base path": "",
+    "home directory": "/usr/local/git/enketo-express-oc",
     "log": {
         "submissions": false
     },

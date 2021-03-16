@@ -260,7 +260,7 @@ function getThemesSupported( themeList ) {
 
 try {
     // need to be in the correct directory to run git describe --tags
-    config[ 'version' ] = execSync( 'cd /usr/local/git/enketo-express-oc; git describe --tags; git describe --tags', { encoding: 'utf-8' } ).trim();
+    config[ 'version' ] = execSync( 'cd ' + config[ 'home directory' ] + '; git describe --tags', { encoding: 'utf-8' } ).trim();
 } catch ( e ) {
     // Probably not deployed with git, try special .tag.txt file
     try {
