@@ -25,5 +25,3 @@ test/client/forms/forms.js
 test-coverage
 coverage.shield.badge.md
 _drafts
-.idea
-enketo-express-oc.iml
