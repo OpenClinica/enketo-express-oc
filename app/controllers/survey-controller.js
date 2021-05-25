@@ -54,6 +54,7 @@ router
     .get( '*', _setCloseButtonClass )
     .get( `${config[ 'offline path' ]}/:enketo_id`, offlineWebform )
     .get( `${config[ 'offline path' ]}/`, redirect )
+    .get( `/fs/participant${config[ 'offline path' ]}/`, fieldSubmissionOffline )
     .get( '/connection', ( req, res ) => {
         res.status = 200;
         res.send( `connected ${Math.random()}` );
@@ -192,6 +193,25 @@ function fieldSubmission( req, res, next ) {
     };
 
     _renderWebform( req, res, next, options );
+}
+
+function fieldSubmissionOffline( req, res, next ) {
+    var options = {
+        type: 'fieldsubmission',
+        participant: req.participant,
+        closeButtonIdSuffix: req.closeButtonIdSuffix,
+        manifest: `${req.app.get( 'base path' )}/fs/participant/x/manifest.appcache`
+    };
+
+    console.log( 'offline!' );
+
+    if ( !req.app.get( 'offline enabled' ) ) {
+        const error = new Error( 'Offline functionality has not been enabled for this application.' );
+        error.status = 405;
+        next( error );
+    } else {
+        _renderWebform( req, res, next, options );
+    }
 }
 
 /**
