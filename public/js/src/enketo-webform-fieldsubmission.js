@@ -9,6 +9,7 @@ import preloadModule from 'enketo-core/src/js/preload';
 import relevantModule from './module/relevant';
 import events from './module/event';
 import formCache from './module/form-cache';
+import applicationCache from './module/application-cache';
 
 import oc from './module/custom';
 

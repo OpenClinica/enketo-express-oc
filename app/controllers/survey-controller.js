@@ -52,9 +52,9 @@ router
     .get( /\/(single)\/fs(\/rfc)?(\/c)?\/i/, _setNextPrompt )
     .get( /\/(edit|single)\/fs\/(?!(participant|rfc|dn|view))/, _setCompleteButton )
     .get( '*', _setCloseButtonClass )
+    .get( `/fs/participant${config[ 'offline path' ]}/:encrypted_enketo_id_fs_participant`, fieldSubmissionOffline )
     .get( `${config[ 'offline path' ]}/:enketo_id`, offlineWebform )
     .get( `${config[ 'offline path' ]}/`, redirect )
-    .get( `/fs/participant${config[ 'offline path' ]}/`, fieldSubmissionOffline )
     .get( '/connection', ( req, res ) => {
         res.status = 200;
         res.send( `connected ${Math.random()}` );
