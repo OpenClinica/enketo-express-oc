@@ -52,7 +52,8 @@ router
     .post( '/xform/:encrypted_enketo_id_headless', getSurveyParts )
     .post( '/xform/:enketo_id', getSurveyParts )
     .post( '/xform', getSurveyParts )
-    .post( '/xform/hash/:enketo_id', getSurveyHash );
+    .post( '/xform/hash/:enketo_id', getSurveyHash )
+    .post( '/xform/hash/:encrypted_enketo_id_fs_participant', getSurveyHash );
 
 /**
  * Obtains HTML Form, XML model, and existing XML instance
