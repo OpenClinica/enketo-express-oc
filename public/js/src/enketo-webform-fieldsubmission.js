@@ -229,7 +229,7 @@ function _init( formParts ) {
                 external: formParts.externalData,
                 instanceAttachments: formParts.instanceAttachments
             }, formParts.loadErrors ).then( form => {
-                //formParts.languages = form.languages; // be careful form is undefined if there were load errors
+                formParts.languages = form.languages; // be careful form is undefined if there were load errors
                 formParts.htmlView = formEl;
                 const titleEl = document.querySelector( '#form-title' );
                 const titleText = settings.pid ? `${settings.pid}: ${titleEl.textContent}` : titleEl.textContent;

@@ -200,10 +200,8 @@ function fieldSubmissionOffline( req, res, next ) {
         type: 'fieldsubmission',
         participant: req.participant,
         closeButtonIdSuffix: req.closeButtonIdSuffix,
-        manifest: `${req.app.get( 'base path' )}/fs/participant/x/manifest.appcache`
+        offlinePath: config[ 'offline path' ]
     };
-
-    console.log( 'offline!' );
 
     if ( !req.app.get( 'offline enabled' ) ) {
         const error = new Error( 'Offline functionality has not been enabled for this application.' );
