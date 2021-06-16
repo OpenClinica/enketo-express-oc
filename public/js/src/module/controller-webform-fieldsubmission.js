@@ -12,6 +12,7 @@ import { FormModel } from './form-model'; // modified for OC
 import fileManager from './file-manager';
 import events from './event';
 import { t } from './translator';
+import records from './records-queue';
 import $ from 'jquery';
 import FieldSubmissionQueue from './field-submission-queue';
 let fieldSubmissionQueue;
@@ -125,7 +126,9 @@ function init( formEl, data, loadErrors = [] ) {
         loadErrors = loadErrors.concat( form.init() );
 
         // Create fieldsubmissions for static default values
-        _addFieldsubmissionsForModelNodes( m, staticDefaultNodes );
+        if ( !settings.offline ){
+            _addFieldsubmissionsForModelNodes( m, staticDefaultNodes );
+        }
 
         // Fire change events for any autoqueries that were generated during form initialization,
         // https://github.com/OpenClinica/enketo-express-oc/issues/393
@@ -642,15 +645,7 @@ function _doNotSubmit( fullPath ) {
 
 function _setFormEventHandlers() {
 
-    // Trigger fieldsubmissions for static defaults in added repeat instance
-    // It is important that this listener comes before the NewRepeat and AddRepeat listeners in enketo-core
-    // that will also run setvalue/odk-new-repeat actions, calculations, and other stuff
-    form.view.html.addEventListener( events.NewRepeat().type, event => {
-        // Note: in XPath, a predicate position is 1-based! The event.detail includes a 0-based index.
-        const selector =  `${event.detail.repeatPath}[${event.detail.repeatIndex + 1}]//*`;
-        const staticDefaultNodes = [ ...form.model.node( selector, null, { noEmpty: true } ).getElements() ];
-        _addFieldsubmissionsForModelNodes( form.model, staticDefaultNodes );
-    } );
+
 
     form.view.html.addEventListener( events.ProgressUpdate().type, event => {
         if ( event.target.classList.contains( 'or' ) && formprogress && event.detail ) {
@@ -658,75 +653,92 @@ function _setFormEventHandlers() {
         }
     } );
 
-    // After repeat removal from view (before removal from model)
-    form.view.html.addEventListener( events.Removed().type, event => {
-        const updated = event.detail || {};
-        const instanceId = form.instanceID;
-        if ( !updated.xmlFragment ) {
-            console.error( 'Could not submit repeat removal fieldsubmission. XML fragment missing.' );
+    // field submission triggers, only for online-only views
+    if ( !settings.offline ){
+        // Trigger fieldsubmissions for static defaults in added repeat instance
+        // It is important that this listener comes before the NewRepeat and AddRepeat listeners in enketo-core
+        // that will also run setvalue/odk-new-repeat actions, calculations, and other stuff
+        form.view.html.addEventListener( events.NewRepeat().type, event => {
+        // Note: in XPath, a predicate position is 1-based! The event.detail includes a 0-based index.
+            const selector =  `${event.detail.repeatPath}[${event.detail.repeatIndex + 1}]//*`;
+            const staticDefaultNodes = [ ...form.model.node( selector, null, { noEmpty: true } ).getElements() ];
+            _addFieldsubmissionsForModelNodes( form.model, staticDefaultNodes );
+        } );
 
-            return;
-        }
-        if ( !instanceId ) {
-            console.error( 'Could not submit repeat removal fieldsubmission. InstanceID missing' );
-        }
+        // After repeat removal from view (before removal from model)
+        form.view.html.addEventListener( events.Removed().type, event => {
+            const updated = event.detail || {};
+            const instanceId = form.instanceID;
+            if ( !updated.xmlFragment ) {
+                console.error( 'Could not submit repeat removal fieldsubmission. XML fragment missing.' );
 
-        postHeartbeat();
-        fieldSubmissionQueue.addRepeatRemoval( updated.xmlFragment, instanceId, form.deprecatedID );
-        fieldSubmissionQueue.submitAll();
-    } );
-    // Field is changed
-    form.view.html.addEventListener( events.DataUpdate().type, event => {
-        const updated = event.detail || {};
-        const instanceId = form.instanceID;
-        let filePromise;
+                return;
+            }
+            if ( !instanceId ) {
+                console.error( 'Could not submit repeat removal fieldsubmission. InstanceID missing' );
+            }
 
-        if ( updated.cloned ) {
+            postHeartbeat();
+            fieldSubmissionQueue.addRepeatRemoval( updated.xmlFragment, instanceId, form.deprecatedID );
+            fieldSubmissionQueue.submitAll();
+        } );
+        // Field is changed
+        form.view.html.addEventListener( events.DataUpdate().type, event => {
+            const updated = event.detail || {};
+            const instanceId = form.instanceID;
+            let filePromise;
+
+            if ( updated.cloned ) {
             // This event is fired when a repeat is cloned. It does not trigger
             // a fieldsubmission.
-            return;
-        }
+                return;
+            }
 
-        // This is a bit of a hacky test for /meta/instanceID and /meta/deprecatedID. Both meta and instanceID nodes could theoretically have any namespace prefix.
-        // and if the namespace is not in the default or the "http://openrosa.org/xforms" namespace it should actually be submitted.
-        if ( /meta\/(.*:)?instanceID$/.test( updated.fullPath ) || /meta\/(.*:)?deprecatedID$/.test( updated.fullPath ) ){
-            return;
-        }
+            // This is a bit of a hacky test for /meta/instanceID and /meta/deprecatedID. Both meta and instanceID nodes could theoretically have any namespace prefix.
+            // and if the namespace is not in the default or the "http://openrosa.org/xforms" namespace it should actually be submitted.
+            if ( /meta\/(.*:)?instanceID$/.test( updated.fullPath ) || /meta\/(.*:)?deprecatedID$/.test( updated.fullPath ) ){
+                return;
+            }
 
-        if ( !updated.xmlFragment ) {
-            console.error( 'Could not submit field. XML fragment missing. (If repeat was deleted, this is okay.)' );
+            if ( !updated.xmlFragment ) {
+                console.error( 'Could not submit field. XML fragment missing. (If repeat was deleted, this is okay.)' );
 
-            return;
-        }
-        if ( !instanceId ) {
-            console.error( 'Could not submit field. InstanceID missing' );
+                return;
+            }
+            if ( !instanceId ) {
+                console.error( 'Could not submit field. InstanceID missing' );
 
-            return;
-        }
-        if ( !updated.fullPath ) {
-            console.error( 'Could not submit field. Path missing.' );
-        }
-        if ( _doNotSubmit( updated.fullPath ) ) {
-            return;
-        }
-        if ( updated.file ) {
-            filePromise = fileManager.getCurrentFile( updated.file );
-        } else {
-            filePromise = Promise.resolve();
-        }
+                return;
+            }
+            if ( !updated.fullPath ) {
+                console.error( 'Could not submit field. Path missing.' );
+            }
+            if ( _doNotSubmit( updated.fullPath ) ) {
+                return;
+            }
+            if ( updated.file ) {
+                filePromise = fileManager.getCurrentFile( updated.file );
+            } else {
+                filePromise = Promise.resolve();
+            }
 
-        // remove the Participate class that shows a Close button on every page
-        form.view.html.classList.remove( 'empty-untouched' );
+            // remove the Participate class that shows a Close button on every page
+            form.view.html.classList.remove( 'empty-untouched' );
 
-        // Only now will we check for the deprecatedID value, which at this point should be (?)
-        // populated at the time the instanceID dataupdate event is processed and added to the fieldSubmission queue.
-        postHeartbeat();
-        filePromise
-            .then( file => {
-                fieldSubmissionQueue.addFieldSubmission( updated.fullPath, updated.xmlFragment, instanceId, form.deprecatedID, file );
-                fieldSubmissionQueue.submitAll();
-            } );
-    } );
+            // Only now will we check for the deprecatedID value, which at this point should be (?)
+            // populated at the time the instanceID dataupdate event is processed and added to the fieldSubmission queue.
+            postHeartbeat();
+            filePromise
+                .then( file => {
+                    fieldSubmissionQueue.addFieldSubmission( updated.fullPath, updated.xmlFragment, instanceId, form.deprecatedID, file );
+                    fieldSubmissionQueue.submitAll();
+                } );
+        } );
+
+    } else {
+        console.log( 'offline-capable so not setting fieldsubmission  handlers' );
+    }
+
 
     // Before repeat removal from view and model
     if ( settings.reasonForChange ) {
