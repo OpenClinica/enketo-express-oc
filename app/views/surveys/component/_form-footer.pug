@@ -11,6 +11,14 @@ section.form-footer
           button#validate-form.btn.btn-primary
             i.icon.icon-check= ' '
             span(data-i18n='formfooter.validate.btn')= t('formfooter.validate.btn')
+        else if draftEnabled && offlinePath
+          button#save-draft.btn.btn-default
+            i.icon.icon-info-circle.save-draft-info= ' '
+            i.icon.icon-pencil= ' '
+            span(data-i18n='formfooter.savedraft.btn')= t( 'formfooter.savedraft.btn' )
+          button#submit-form.btn.btn-primary
+            i.icon.icon-check= ' '
+            span(data-i18n='formfooter.submit.btn')= t('formfooter.submit.btn')
         else if type === 'fieldsubmission' || type === 'view'
           if nextPrompt && completeButton
             fieldset.question.next-prompt
@@ -22,15 +30,6 @@ section.form-footer
             button#finish-form.btn.btn-primary
               i.icon.icon-check= ' '
               span(data-i18n='formfooter.complete.btn')= t('formfooter.complete.btn')
-        else
-          if draftEnabled && offlinePath
-            button#save-draft.btn.btn-default
-              i.icon.icon-info-circle.save-draft-info= ' '
-              i.icon.icon-pencil= ' '
-              span(data-i18n='formfooter.savedraft.btn')= t( 'formfooter.savedraft.btn' )
-          button#submit-form.btn.btn-primary
-            i.icon.icon-check= ' '
-            span(data-i18n='formfooter.submit.btn')= t('formfooter.submit.btn')
         a.btn.btn-primary.next-page(href="#")
           i.icon.icon-arrow-right
           span(data-i18n='form.pages.next')= t('form.pages.next')
