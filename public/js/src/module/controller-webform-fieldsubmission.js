@@ -20,6 +20,7 @@ import rc from './controller-webform';
 import reasons from './reasons';
 const DEFAULT_THANKS_URL = '/thanks';
 let form;
+let formData;
 let formprogress;
 let ignoreBeforeUnload = false;
 
@@ -31,9 +32,10 @@ const delayChangeEventBuffer = [];
 
 function init( formEl, data, loadErrors = [] ) {
 
+    formData = data;
     formprogress = document.querySelector( '.form-progress' );
 
-    return new Promise( resolve => {
+    return _initializeRecords().then( () => {
         let staticDefaultNodes = [];
         let m;
         let goToErrors = [];
@@ -213,7 +215,7 @@ function init( formEl, data, loadErrors = [] ) {
             }
         }
 
-        resolve( form );
+        return form;
     } )
         .catch( error => {
             if ( Array.isArray( error ) ) {
@@ -279,6 +281,14 @@ function _addToDelayChangeEventBuffer( event ) {
     delayChangeEventBuffer.push( event.target );
 }
 
+function _initializeRecords() {
+    if ( !settings.offline ) {
+        return Promise.resolve();
+    }
+
+    return records.init();
+}
+
 /**
  * Submit fieldsubmissions for all provided model (leaf) nodes. Meant to submit static defaults.
  *
@@ -291,6 +301,41 @@ function _addFieldsubmissionsForModelNodes( model, modelNodes ){
         fieldSubmissionQueue.addFieldSubmission( props.fullPath, props.xmlFragment, form.instanceID );
     } );
 }
+
+/**
+ * Controller function to reset to a blank form. Checks whether all changes have been saved first
+ *
+ * @param  {boolean=} confirmed - Whether unsaved changes can be discarded and lost forever
+ */
+function _resetForm( confirmed ) {
+    let message;
+
+    if ( !confirmed && form.editStatus ) {
+        message = t( 'confirm.save.msg' );
+        gui.confirm( message )
+            .then( confirmed => {
+                if ( confirmed ) {
+                    _resetForm( true );
+                }
+            } );
+    } else {
+        const formEl = form.resetView();
+        form = new Form( formEl, {
+            modelStr: formData.modelStr,
+            external: formData.external
+        }, formOptions );
+        const loadErrors = form.init();
+        // formreset event will update the form media:
+        form.view.html.dispatchEvent( events.FormReset() );
+        if ( records ) {
+            records.setActive( null );
+        }
+        if ( loadErrors.length > 0 ) {
+            gui.alertLoadErrors( loadErrors );
+        }
+    }
+}
+
 
 /**
  * Closes the form after checking that the queue is empty.
@@ -614,6 +659,169 @@ function _complete( bypassConfirmation = false, bypassChecks = false ) {
         } );
 }
 
+function _getRecordName() {
+    return records.getCounterValue( settings.enketoId )
+        .then( count => form.instanceName || form.recordName || `${form.surveyName} - ${count}` );
+}
+
+function _confirmRecordName( recordName, errorMsg ) {
+    const texts = {
+        msg: '',
+        heading: t( 'formfooter.savedraft.label' ),
+        errorMsg
+    };
+    const choices = {
+        posButton: t( 'confirm.save.posButton' ),
+        negButton: t( 'confirm.default.negButton' )
+    };
+    const inputs = `<label><span>${t( 'confirm.save.name' )}</span><span class="or-hint active">${t( 'confirm.save.hint' )}</span><input name="record-name" type="text" value="${recordName}"required /></label>`;
+
+    return gui.prompt( texts, choices, inputs )
+        .then( values => {
+            if ( values ) {
+                return values[ 'record-name' ];
+            }
+            throw new Error( 'Cancelled by user' );
+        } );
+}
+
+function _saveRecord( draft = true, recordName, confirmed, errorMsg ) {
+    const include = { irrelevant: draft };
+
+    // triggering "before-save" event to update possible "timeEnd" meta data in form
+    form.view.html.dispatchEvent( events.BeforeSave() );
+
+    // check recordName
+    if ( !recordName ) {
+        return _getRecordName()
+            .then( name => _saveRecord( draft, name, false, errorMsg ) );
+    }
+
+    // check whether record name is confirmed if necessary
+    if ( draft && !confirmed ) {
+        return _confirmRecordName( recordName, errorMsg )
+            .then( name => _saveRecord( draft, name, true ) )
+            .catch( () => {} );
+    }
+
+    return fileManager.getCurrentFiles()
+        .then( files => {
+            // build the record object
+            return {
+                'draft': draft,
+                'xml': form.getDataStr( include ),
+                'name': recordName,
+                'instanceId': form.instanceID,
+                'deprecateId': form.deprecatedID,
+                'enketoId': settings.enketoId,
+                'files': files
+            };
+
+        } ).then( record => {
+            // Change file object for database, not sure why this was chosen.
+            record.files = record.files.map( file => ( typeof file === 'string' ) ? {
+                name: file
+            } : {
+                name: file.name,
+                item: file
+            } );
+
+            // Save the record, determine the save method
+            const saveMethod = form.recordName ? 'update' : 'set';
+
+            return records[ saveMethod ]( record );
+        } )
+        .then( () => {
+            records.removeAutoSavedRecord();
+            _resetForm( true );
+
+            if ( draft ) {
+                gui.alert( t( 'alert.recordsavesuccess.draftmsg' ), t( 'alert.savedraftinfo.heading' ), 'info', 5 );
+            } else {
+                gui.alert( `${t( 'record-list.msg2' )}`, t( 'alert.recordsavesuccess.finalmsg' ), 'info', 10 );
+                // The timeout simply avoids showing two messages at the same time:
+                // 1. "added to queue"
+                // 2. "successfully submitted"
+                setTimeout( records.uploadQueue, 10 * 1000 );
+            }
+        } )
+        .catch( error => {
+            console.error( 'save error', error );
+            errorMsg = error.message;
+            if ( !errorMsg && error.target && error.target.error && error.target.error.name && error.target.error.name.toLowerCase() === 'constrainterror' ) {
+                errorMsg = t( 'confirm.save.existingerror' );
+            } else if ( !errorMsg ) {
+                errorMsg = t( 'confirm.save.unkownerror' );
+            }
+            gui.alert( errorMsg, 'Save Error' );
+        } );
+}
+
+/**
+ * Loads a record from storage
+ *
+ * @param  { string } instanceId - [description]
+ * @param  {=boolean?} confirmed -  [description]
+ */
+function _loadRecord( instanceId, confirmed ) {
+    let texts;
+    let choices;
+    let loadErrors;
+
+    if ( !confirmed && form.editStatus ) {
+        texts = {
+            msg: t( 'confirm.discardcurrent.msg' ),
+            heading: t( 'confirm.discardcurrent.heading' )
+        };
+        choices = {
+            posButton: t( 'confirm.discardcurrent.posButton' ),
+        };
+        gui.confirm( texts, choices )
+            .then( confirmed => {
+                if ( confirmed ) {
+                    _loadRecord( instanceId, true );
+                }
+            } );
+    } else {
+        records.get( instanceId )
+            .then( record => {
+                if ( !record || !record.xml ) {
+                    return gui.alert( t( 'alert.recordnotfound.msg' ) );
+                }
+
+                const formEl = form.resetView();
+                form = new Form( formEl, {
+                    modelStr: formData.modelStr,
+                    instanceStr: record.xml,
+                    external: formData.external,
+                    submitted: false
+                }, formOptions );
+                loadErrors = form.init();
+                // formreset event will update the form media:
+                form.view.html.dispatchEvent( events.FormReset() );
+                form.recordName = record.name;
+                records.setActive( record.instanceId );
+
+                if ( loadErrors.length > 0 ) {
+                    throw loadErrors;
+                } else {
+                    gui.feedback( t( 'alert.recordloadsuccess.msg', {
+                        recordName: record.name
+                    } ), 2 );
+                }
+                $( '.side-slider__toggle.close' ).click();
+            } )
+            .catch( errors => {
+                console.error( 'load errors: ', errors );
+                if ( !Array.isArray( errors ) ) {
+                    errors = [ errors.message ];
+                }
+                gui.alertLoadErrors( errors, t( 'alert.loaderror.editadvice' ) );
+            } );
+    }
+}
+
+
 /**
  * Triggers autoqueries.
  *
@@ -644,8 +852,6 @@ function _doNotSubmit( fullPath ) {
 }
 
 function _setFormEventHandlers() {
-
-
 
     form.view.html.addEventListener( events.ProgressUpdate().type, event => {
         if ( event.target.classList.contains( 'or' ) && formprogress && event.detail ) {
@@ -842,6 +1048,60 @@ function _setButtonEventHandlers() {
 
         return false;
     } );
+
+
+    if ( settings.offline ) {
+        $( 'button#submit-form' ).click( function() {
+            const $button = $( this ).btnBusyState( true );
+
+            setTimeout( () => {
+                form.validate()
+                    .then( valid => {
+                        if ( valid ) {
+                            return _saveRecord( false );
+                        } else {
+                            gui.alert( t( 'alert.validationerror.msg' ) );
+                        }
+                    } )
+                    .catch( e => {
+                        gui.alert( e.message );
+                    } )
+                    .then( () => {
+                        $button.btnBusyState( false );
+                    } );
+            }, 100 );
+
+            return false;
+        } );
+
+        const draftButton = document.querySelector( 'button#save-draft' );
+        if ( draftButton ) {
+            draftButton.addEventListener( 'click', event => {
+                if ( !event.target.matches( '.save-draft-info' ) ) {
+                    const $button = $( draftButton ).btnBusyState( true );
+                    setTimeout( () => {
+                        _saveRecord( true )
+                            .then( () => {
+                                $button.btnBusyState( false );
+                            } )
+                            .catch( e => {
+                                $button.btnBusyState( false );
+                                throw e;
+                            } );
+                    }, 100 );
+                }
+            } );
+        }
+
+        $( document ).on( 'click', '.record-list__records__record[data-draft="true"]', function() {
+            _loadRecord( $( this ).attr( 'data-id' ), false );
+        } );
+
+        $( document ).on( 'click', '.record-list__records__record', function() {
+            $( this ).next( '.record-list__records__msg' ).toggle( 100 );
+        } );
+
+    }
 
     if ( rc.inIframe() && settings.parentWindowOrigin ) {
         document.addEventListener( events.SubmissionSuccess().type, rc.postEventAsMessageToParentWindow );
