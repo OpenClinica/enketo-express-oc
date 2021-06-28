@@ -61,6 +61,16 @@ router
         req.webformType = 'note-instance';
         next();
     } )
+    .post( '*/offline/*', ( req, res, next ) => {
+        if ( req.app.get( 'offline enabled' ) ) {
+            req.webformType = 'offline';
+            next();
+        } else {
+            const error = new Error( 'Not Allowed.' );
+            error.status = 405;
+            next( error );
+        }
+    } )
     .post( '/instance/edit/rfc*', ( req, res, next ) => {
         req.webformSubType = 'rfc';
         next();
@@ -89,6 +99,7 @@ router
     .post( '/survey/collect', getNewOrExistingSurvey )
     .post( '/survey/collect/c', getNewOrExistingSurvey )
     .post( '/survey/collect/participant', getNewOrExistingSurvey )
+    .post( '/survey/collect/offline/participant', getNewOrExistingSurvey )
     .post( '/instance/*', _setInterfaceQueryParam )
     .post( '/instance/view', cacheInstance )
     .post( '/instance/view/pdf', cacheInstance )
@@ -421,6 +432,7 @@ function _generateQueryString( params = [] ) {
 function _generateWebformUrls( id, req ) {
     const IFRAMEPATH = 'i/';
     const FSPATH = 'fs/';
+    const OFFLINEPATH = 'x/';
     const dnClosePart = ( req.dnClose ) ? 'c/' : '';
     const hash = req.goTo;
     const protocol = req.headers[ 'x-forwarded-proto' ] || req.protocol;
@@ -483,6 +495,11 @@ function _generateWebformUrls( id, req ) {
         case 'edit-participant': {
             const queryString = _generateQueryString( [ req.ecid, req.pid, `instance_id=${req.body.instance_id}`, req.defaultsQueryParam, req.returnQueryParam, req.parentWindowOriginParam, req.interfaceQueryParam ] );
             url = `${BASEURL}edit/${FSPATH}participant/${IFRAMEPATH}${idFsParticipant}${queryString}${hash}`;
+            break;
+        }
+        case 'offline-participant': {
+            const queryString = _generateQueryString( [ req.ecid, req.pid, req.defaultsQueryParam, req.returnQueryParam, req.parentWindowOriginParam, req.jini ] );
+            url = `${BASEURL}${FSPATH}participant/${OFFLINEPATH}${idFsParticipant}${queryString}`;
             break;
         }
         case 'view':
