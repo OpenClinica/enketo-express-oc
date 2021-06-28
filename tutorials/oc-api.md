@@ -64,6 +64,14 @@ Returns a URL that points to a special "Participate" view to collect a new recor
 
 Otherwise, use exactly as POST /survey/collect.
 
+### POST /survey/collect/offline/participant
+
+Returns an offline-capable URL that points to a special "Participate" view to collect a new record.
+
+- Has a **required** `ecid` parameter with string value.
+
+Otherwise, use exactly as POST /survey/collect.
+
 ### POST /survey/view
 
 Returns a URL that points to an **empty readonly** form.
