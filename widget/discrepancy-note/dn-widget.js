@@ -574,12 +574,10 @@ class Comment extends Widget {
             widget.style[ o[ 0 ] ] = o[ 1 ];
         } );
 
-        // Scroll directly to Query modal if not enough height for user to view the Query modal
-        // https://github.com/OpenClinica/enketo-express-oc/issues/378
-        if ( this.linkedQuestion.classList.contains( 'or-appearance-image-map' ) ) {
-            setTimeout( () => {
-                this._scrollToview();
-            }, 500 );
+        // https://github.com/OpenClinica/enketo-express-oc/issues/495
+        const maps = document.querySelectorAll( '.or-appearance-image-map' );
+        if ( maps.length > 0 ) {
+            this._isMapsReady( maps, 0 );
         } else {
             this._scrollToview();
         }
@@ -594,6 +592,23 @@ class Comment extends Widget {
             } );
         } );
 
+    }
+
+    _isMapsReady( maps, counter ) {
+        let svg = maps[ counter ].querySelector( 'svg' );
+        setTimeout( () => {
+            if ( svg === null ) {
+                this._isMapsReady( maps, counter );
+            } else {
+                counter++;
+                if ( counter === maps.length ) {
+                    this._scrollToview();
+                } else {
+                    this._isMapsReady( maps, counter );
+                }
+            }
+
+        }, 200);
     }
 
     _scrollToview() {
