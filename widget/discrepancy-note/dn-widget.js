@@ -575,9 +575,27 @@ class Comment extends Widget {
         } );
 
         // https://github.com/OpenClinica/enketo-express-oc/issues/495
-        const maps = document.querySelectorAll( '.or-appearance-image-map' );
+        const maps = document.querySelectorAll( '.or-appearance-image-map' ),
+        root = this.element.closest( 'form' );
+        let count = 0;
+        const dn = this;
         if ( maps.length > 0 ) {
-            this._isMapsReady( maps, 0 );
+            const mutationObserver = new MutationObserver( mutations => {
+                mutations.forEach( mutation => {
+                    if ( mutation.attributeName === 'viewBox' && mutation.target.tagName === 'svg' ) {
+                        count++;
+                        if ( count === maps.length ) {
+                            dn._scrollToview();
+                            mutationObserver.disconnect();
+                        }
+                    }
+                });
+            });
+
+            mutationObserver.observe( root, {
+                attributes: true,
+                childList: true,
+                subtree: true });
         } else {
             this._scrollToview();
         }
@@ -592,23 +610,6 @@ class Comment extends Widget {
             } );
         } );
 
-    }
-
-    _isMapsReady( maps, counter ) {
-        let svg = maps[ counter ].querySelector( 'svg' );
-        setTimeout( () => {
-            if ( svg === null ) {
-                this._isMapsReady( maps, counter );
-            } else {
-                counter++;
-                if ( counter === maps.length ) {
-                    this._scrollToview();
-                } else {
-                    this._isMapsReady( maps, counter );
-                }
-            }
-
-        }, 200);
     }
 
     _scrollToview() {
