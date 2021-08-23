@@ -575,17 +575,33 @@ class Comment extends Widget {
         } );
 
         // https://github.com/OpenClinica/enketo-express-oc/issues/495
-        const maps = document.querySelectorAll( '.or-appearance-image-map' ),
-        root = this.element.closest( 'form' );
+        this._mapChecker();
+
+        const closeButton = widget.querySelector( '.or-comment-widget__content__btn-close-x' );
+        const overlay = widget.querySelector( '.or-comment-widget__overlay--click-preventer' );
+        [ closeButton, overlay ].forEach( el => {
+            el.addEventListener( 'click', event => {
+                this._hideCommentModal( this.linkedQuestion );
+                event.preventDefault();
+                event.stopPropagation();
+            } );
+        } );
+
+    }
+
+    _mapChecker() {
+        const root = this.element.closest( 'form' ),
+        maps = Array.from( root.querySelectorAll( '.or-appearance-image-map' ) );
+        let ready = maps.every( map => map.querySelector( 'svg' ) );
+
         let count = 0;
-        const dn = this;
-        if ( maps.length > 0 ) {
+        if ( !ready ) {
             const mutationObserver = new MutationObserver( mutations => {
                 mutations.forEach( mutation => {
                     if ( mutation.attributeName === 'viewBox' && mutation.target.tagName === 'svg' ) {
                         count++;
                         if ( count === maps.length ) {
-                            dn._scrollToview();
+                            this._scrollToview();
                             mutationObserver.disconnect();
                         }
                     }
@@ -599,17 +615,6 @@ class Comment extends Widget {
         } else {
             this._scrollToview();
         }
-
-        const closeButton = widget.querySelector( '.or-comment-widget__content__btn-close-x' );
-        const overlay = widget.querySelector( '.or-comment-widget__overlay--click-preventer' );
-        [ closeButton, overlay ].forEach( el => {
-            el.addEventListener( 'click', event => {
-                this._hideCommentModal( this.linkedQuestion );
-                event.preventDefault();
-                event.stopPropagation();
-            } );
-        } );
-
     }
 
     _scrollToview() {
