@@ -55,6 +55,11 @@ router
     .get( '/:enketo_id', getInstance )
     .post( '/:encrypted_enketo_id_single', submit )
     .post( '/:enketo_id', submit )
+    .post( '/:encrypted_enketo_id_participant', ( req, res, next ) => {
+        req.fullRecord = true;
+
+        return submit( req, res, next );
+    } )
     .all( '/*', ( req, res, next ) => {
         const error = new Error( 'Not allowed' );
         error.status = 405;
@@ -80,7 +85,7 @@ function submit( req, res, next ) {
 
     surveyModel.get( id )
         .then( survey => {
-            submissionUrl = communicator.getSubmissionUrl( survey.openRosaServer ) + query;
+            submissionUrl = communicator.getSubmissionUrl( survey.openRosaServer, req.fullRecord ) + query;
             const credentials = userModel.getCredentials( req );
 
             return communicator.getAuthHeader( submissionUrl, credentials );

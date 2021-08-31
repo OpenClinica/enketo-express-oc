@@ -16,7 +16,7 @@ A successful **POST** response (always has `url` property) with 200 or 201 HTTP 
 }
 ```
 
-A successful 204 **DELETE** response is an empty body with the 204 HTTP status. 
+A successful 204 **DELETE** response is an empty body with the 204 HTTP status.
 
 Explanation of all statuscodes:
 
@@ -62,6 +62,8 @@ Returns a URL that points to a special "Participate" view to collect a new recor
 
 - Has a **required** `ecid` parameter with string value.
 
+**Note: Submissions for participate URLS go to /submission-full, and will be split into individual fieldsubmissions on the OC side.**
+
 Otherwise, use exactly as POST /survey/collect.
 
 ### POST /survey/collect/offline/participant
@@ -69,6 +71,8 @@ Otherwise, use exactly as POST /survey/collect.
 Returns an offline-capable URL that points to a special "Participate" view to collect a new record.
 
 - Has a **required** `ecid` parameter with string value.
+
+**Note: Submissions for participate URLS go to /submission-full, and will be split into individual fieldsubmissions on the OC side.**
 
 Otherwise, use exactly as POST /survey/collect.
 
@@ -146,9 +150,11 @@ Returns a URL that points to a special "Participate" webform fieldsubmission vie
 - Has an optional `go_to_error_url` parameter that in conjunction with `go_to` will prompt the user to redirect to a _mini form_ if the go_to target is not available or hidden.
 - Has an optional `interface` parameter with a string value of either `"default"`, `"queries"`, or `"sdv"` that results in tweaked error messages.
 
+**Note: Submissions for participate URLS go to /submission-full, and will be split into individual fieldsubmissions on the OC side.**
+
 Otherwise, use as POST /instance/edit.
 
-### POST /instance/edit/rfc 
+### POST /instance/edit/rfc
 
 Returns a url that points to webform fieldsubmission view with an existing record **and a reason-for-change UI**. No Close button present in the Discrepancy Note widget.
 
@@ -161,7 +167,7 @@ Returns a url that points to webform fieldsubmission view with an existing recor
 
 Otherwise, use exactly as [POST /instance/iframe](http://apidocs.enketo.org/v2/#/post-instance-iframe)
 
-### POST /instance/edit/rfc/c 
+### POST /instance/edit/rfc/c
 
 Same as POST /instance/edit/rfc except that this view has a **Close button** in the Discrepancy Note Widget.
 
@@ -206,7 +212,7 @@ Same as POST /instance/note except that this view has a **Close button** in the 
 
 ### POST /instance/headless
 
-Loads a record headlessly, adds autoqueries and submits. 
+Loads a record headlessly, adds autoqueries and submits.
 
 The result object has a `"message"` and if it was succesful also a `"fieldsubmissions"` property. The `"message"` value contains an error message if the HTTP response is not `200` or `201` (otherwise the value is "OK"). The `"fieldsubmissions"` value is the number of fieldsubmissions that were successfully submitted if there was no loading or submission error (otherwise this property is absent). For example:
 
@@ -221,7 +227,7 @@ Otherwise, use like [POST /instance/edit](#post-instanceedit) (without `return_u
 
 ### POST /instance/headless/rfc
 
-Loads a completed record headlessly, adds autoqueries and submits. 
+Loads a completed record headlessly, adds autoqueries and submits.
 
 The result object has a `"message"` and if it was succesful also a `"fieldsubmissions"` property. The `"message"` value contains an error message if the HTTP response is not `200` or `201` (otherwise the value is "OK"). The `"fieldsubmissions"` value is the number of fieldsubmissions that were successfully submitted if there was no loading or submission error (otherwise this property is absent). For example:
 
