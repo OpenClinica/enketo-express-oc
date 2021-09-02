@@ -1054,22 +1054,25 @@ function _setButtonEventHandlers() {
         $( 'button#submit-form' ).click( function() {
             const $button = $( this ).btnBusyState( true );
 
-            setTimeout( () => {
-                form.validate()
-                    .then( valid => {
-                        if ( valid ) {
-                            return _saveRecord( false );
-                        } else {
-                            gui.alert( t( 'alert.validationerror.msg' ) );
-                        }
-                    } )
-                    .catch( e => {
-                        gui.alert( e.message );
-                    } )
-                    .then( () => {
-                        $button.btnBusyState( false );
-                    } );
-            }, 100 );
+            form.validate()
+                .then( valid => {
+                    if ( !valid ) {
+                        const strictViolations = form.view.html
+                            .querySelector( settings.strictViolationSelector );
+
+                        valid = !strictViolations;
+                    }
+                    if ( valid ) {
+                        return _saveRecord( false );
+                    }
+                    gui.alertStrictBlock();
+                } )
+                .catch( e => {
+                    gui.alert( e.message );
+                } )
+                .then( () => {
+                    $button.btnBusyState( false );
+                } );
 
             return false;
         } );
