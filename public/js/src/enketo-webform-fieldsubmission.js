@@ -25,6 +25,8 @@ const survey = {
 };
 const range = document.createRange();
 
+_setEmergencyHandlers();
+
 if ( settings.offline ) {
     console.log( 'App in offline-capable mode.', survey );
     delete survey.xformUrl;
@@ -150,6 +152,35 @@ function _setFormCacheEventHandlers( survey ) {
     } );
 
     return survey;
+}
+
+/**
+ * Advanced/emergency handlers that should always be activated even if form loading fails.
+ */
+function _setEmergencyHandlers() {
+    const flushBtn = document.querySelector( '.side-slider__advanced__button.flush-db' );
+
+    if ( flushBtn ) {
+        flushBtn.addEventListener( 'click', () => {
+            gui.confirm( {
+                msg: t( 'confirm.deleteall.msg' ),
+                heading: t( 'confirm.deleteall.heading' )
+            }, {
+                posButton: t( 'confirm.deleteall.posButton' ),
+            } )
+                .then( confirmed => {
+                    if ( !confirmed ) {
+                        throw new Error( 'Cancelled by user' );
+                    }
+
+                    return store.flush();
+                } )
+                .then( () => {
+                    location.reload();
+                } )
+                .catch( () => {} );
+        } );
+    }
 }
 
 /**
