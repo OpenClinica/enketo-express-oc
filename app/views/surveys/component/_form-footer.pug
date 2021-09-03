@@ -11,12 +11,11 @@ section.form-footer
           button#validate-form.btn.btn-primary
             i.icon.icon-check= ' '
             span(data-i18n='formfooter.validate.btn')= t('formfooter.validate.btn')
-        else if offlinePath
-          if draftEnabled
-            button#save-draft.btn.btn-default
-                i.icon.icon-info-circle.save-draft-info= ' '
-                i.icon.icon-pencil= ' '
-                span(data-i18n='formfooter.savedraft.btn')= t( 'formfooter.savedraft.btn' )
+        else if draftEnabled && offlinePath
+          button#save-draft.btn.btn-default
+            i.icon.icon-info-circle.save-draft-info= ' '
+            i.icon.icon-pencil= ' '
+            span(data-i18n='formfooter.savedraft.btn')= t( 'formfooter.savedraft.btn' )
           button#submit-form.btn.btn-primary
             i.icon.icon-check= ' '
             span(data-i18n='alert.default.button')= t('alert.default.button')
