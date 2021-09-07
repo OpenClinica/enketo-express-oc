@@ -9,7 +9,18 @@ import './relevant';
 import './required';
 import './page';
 import './repeat';
+import './input';
 import './download-utils';
+
+Form.constraintNames = Array.from( Array( 21 ) ).map( ( val, i ) => `constraint${i !== 0 ? i : ''}` );
+
+Object.defineProperty( Form, 'constraintClassesInvalid',  {
+    get: () => Form.constraintNames.map( n => `invalid-${n}` )
+} );
+
+Object.defineProperty( Form, 'constraintAttributes', {
+    get: () => Form.constraintNames.map( ( n, i ) =>  `data-${i === 0 ? n : 'oc-' + n}` )
+} );
 
 /**
  * This function doesn't actually evaluate constraints. It triggers
@@ -119,8 +130,8 @@ Form.prototype.specialOcLoadValidate = function( includeRequired ) {
     $collectionToValidate.each( function() {
         const control = this;
         that.validateInput( control )
-            .then( passed => {
-                if ( !passed && !includeRequired ) {
+            .then( result => {
+                if ( !result.requiredValid && !includeRequired ) {
                     // Undo the displaying of a required error message upon load.
                     // Note: a failed required means there cannot be a failed constraint, because they are mutually exclusive
                     // in the engine (constraint is only evaluated if question has a value).
@@ -155,7 +166,8 @@ Form.prototype.validateInput = function( control ) {
             if ( result && ( !result.requiredValid || !result.constraintValid ) ) {
                 const question = control.closest( '.question' );
                 if ( question && question.classList.contains( 'invalid-relevant' ) ) {
-                    this.setValid( control, 'constraint' );
+                    // TODO: another perhaps more efficient approach would be to check with invalid-constraintN classes are currently present
+                    Form.constraintNames.forEach( constraint => this.setValid( control, constraint ) );
                 }
             }
 
@@ -250,33 +262,101 @@ Form.prototype.strictConstraintCheckHandler = function( evt, input ) {
     }
 };
 
+/**
+ * Removes an invalid mark on a question in the form UI.
+ * OC: customized to also work on groups
+ *
+ * @param {Element} control - form control HTML element
+ * @param {string} [type] - One of "constraint", "required" and "relevant".
+ */
+Form.prototype.setValid = function( control, type ) {
+    const wrap = control.closest( '.question, .calculation, .or-group, .or-group-data' );
 
-// customized to also work on groups
-Form.prototype.setValid = function( node, type ) {
-    const classes = ( type ) ? [ `invalid-${type}` ] : [ 'invalid-constraint', 'invalid-required', 'invalid-relevant' ];
-    node.closest( '.question, .calculation, .or-group, .or-group-data' ).classList.remove( ...classes );
+    if ( !wrap ){
+        // TODO: this condition occurs, at least in tests for itemsets, but we need find out how.
+        return;
+    }
+
+    const classes = type ? [ `invalid-${type}` ] : [ ...wrap.classList ].filter( cl => cl.indexOf( 'invalid-' ) === 0 );
+    wrap.classList.remove( ...classes );
 };
 
-// customized to also work on groups
-Form.prototype.setInvalid = function( node, type ) {
-    type = type || 'constraint';
+/**
+ * Marks a question as invalid in the form UI.
+ * OC: customized to also work on groups
+ *
+ * @param {Element} control - form control HTML element
+ * @param {string} [type] - One of "constraint", "required" and "relevant".
+ */
+Form.prototype.setInvalid = function( control, type = 'constraint' ) {
+    const wrap = control.closest( '.question, .calculation, .or-group, .or-group-data' );
 
-    if ( config.validatePage === false && this.isValid( node ) ) {
+    if ( !wrap ){
+        // TODO: this condition occurs, at least in tests for itemsets, but we need find out how.
+        return;
+    }
+
+    if ( config.validatePage === false && this.isValid( control ) ) {
         this.blockPageNavigation();
     }
 
-    node.closest( '.question, .calculation, .or-group, .or-group-data' ).classList.add( `invalid-${type}` );
+    wrap.classList.add( `invalid-${type}` );
 };
 
+/**
+ * Checks whether the question is not currently marked as invalid. If no argument is provided, it checks the whole form.
+ * OC customization: added group
+ *
+ * @param {Element} node - form control HTML element
+ * @return {!boolean} Whether the question/form is not marked as invalid.
+ */
 Form.prototype.isValid = function( node ) {
+    const invalidSelectors = [ '.invalid-required', '.invalid-relevant' ].concat( this.constraintClassesInvalid );
     if ( node ) {
         const questionOrGroup = node.closest( '.question, .calculation, .or-group, .or-group-data' );
         const cls = questionOrGroup.classList;
 
-        return !cls.contains( 'invalid-required' ) && !cls.contains( 'invalid-constraint' && !cls.contains( 'invalid-relevant' ) );
+        return !invalidSelectors.some( selector => cls.contains( selector ) );
     }
 
-    return this.view.html.querySelector( '.invalid-required, .invalid-constraint, .invalid-relevant' ) === null;
+    return !this.view.html.querySelector( invalidSelectors.join( ', ' ) );
+};
+
+/**
+ *
+ * @param {*} control - form control HTML element
+ * @param {*} result - result object obtained from Nodeset.validate
+ */
+Form.prototype.updateValidityInUi = function( control, result ){
+    const passed = result.requiredValid !== false ;
+
+    // Update UI
+    if ( result.requiredValid === false ) {
+        if ( Array.isArray( result.constraintValid ) ){
+            result.constraintValid.forEach( ( valid, index ) => this.setValid( control, index === 0 ? 'constraint' : `constraint${index}` ) );
+        }
+        this.setInvalid( control, 'required' );
+    } else {
+        this.setValid( control, 'required' );
+        // if required === false, result.constraintValid returned by nodeset.validate is null
+        if ( Array.isArray( result.constraintValid ) ){
+            result.constraintValid.forEach( ( valid, index ) => {
+                const cls = index === 0 ? 'constraint' : `constraint${index}`;
+                if ( valid === true ){
+                    this.setValid( control, cls );
+                } else if ( valid === false ){
+                    passed == false;
+                    this.setInvalid( control, cls );
+                }
+                // no need to do anything if valid === undefined
+            } );
+        }
+
+    }
+
+    if ( !passed ){
+        control.dispatchEvent( events.Invalidated() );
+    }
 };
 
 export { Form };

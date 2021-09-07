@@ -267,6 +267,20 @@ $secondary-color: #eeeeee;
     display: block !important;
 }
 
+// multiple constraints, see equivalent rules in enketo-core
+@for $number from 1 through $max-constraints {
+    .invalid-constraint#{$number} {
+        @include question-invalid;
+        .or-constraint#{$number}-msg.active {
+            @include question-error-message;
+            display: block;
+        }
+    }
+    .or-constraint#{$number}-msg{
+        display: none;
+    }
+}
+
 .pages~.form-footer {
     .form-footer {
         &__content {

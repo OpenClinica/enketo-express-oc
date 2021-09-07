@@ -6,6 +6,9 @@ import $ from 'jquery';
 
 import sniffer from './sniffer';
 
+// load customized nodeset module
+import './nodeset';
+
 Model.prototype.getUpdateEventData = function( el, type ) {
     let fullPath;
     let xmlFragment;

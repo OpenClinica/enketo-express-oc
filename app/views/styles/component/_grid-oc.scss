@@ -31,3 +31,10 @@
 .or-analog-scale-initialized.or-appearance-vertical:not(.disabled) .analog-scale-widget {
     margin-top: 15px;
 }
+
+// multiple constraints, see equivalent rules in enketo-core
+@for $number from 1 through $max-constraints {
+    .or-constraint#{$number}-msg{
+        order: 5; //used in Grid Theme
+    }
+}

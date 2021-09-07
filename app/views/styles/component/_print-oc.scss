@@ -1,3 +1,14 @@
+.or {
+    // multiple constraints, see equivalent rules in enketo-core
+    @for $number from 1 through $max-constraints {
+        .invalid-constraint#{$number} {
+            .or-constraint#{$number}-msg.active {
+                display:none;
+            }
+        }
+    }
+}
+
 .or-appearance-dn {
     width: 100% !important;
     flex: 100% !important;
@@ -32,7 +43,7 @@
     }
 
     .question.or-appearance-dn.printified {
-        
+
         &[role="comment"] {
             padding-top: 5px;
             padding-bottom: 10px;
