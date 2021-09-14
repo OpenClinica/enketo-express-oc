@@ -303,6 +303,8 @@ Form.prototype.setInvalid = function( control, type = 'constraint' ) {
     wrap.classList.add( `invalid-${type}` );
 };
 
+
+// TODO can this function be removed entirely?
 /**
  * Checks whether the question is not currently marked as invalid. If no argument is provided, it checks the whole form.
  * OC customization: added group
