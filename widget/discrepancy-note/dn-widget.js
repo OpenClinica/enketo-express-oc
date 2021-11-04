@@ -1,5 +1,5 @@
 import Widget from 'enketo-core/src/js/widget';
-import { getSiblingElements } from 'enketo-core/src/js/dom-utils';
+import { getSiblingElements, MutationsTracker } from 'enketo-core/src/js/dom-utils';
 import $ from 'jquery';
 import { t } from '../../public/js/src/module/translator';
 import settings from '../../public/js/src/module/settings';
@@ -623,7 +623,11 @@ class Comment extends Widget {
         if ( window.innerHeight - this.linkedQuestion.offsetHeight < queryModal.offsetHeight ) {
             queryModal.scrollIntoView( option );
         } else {
-            this.linkedQuestion.scrollIntoView( option );
+            // https://github.com/OpenClinica/enketo-express-oc/issues/518
+            new MutationsTracker( this.element.closest( 'form' ) ).waitForQuietness()
+            .then( () => { 
+                this.linkedQuestion.scrollIntoView( option );
+            } );
         }
     }
 
