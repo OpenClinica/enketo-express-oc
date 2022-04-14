@@ -120,6 +120,15 @@
         }
     },
     "confirm": {
+        "deleteall": {
+            "heading": "WARNING",
+            "msg": [
+                "This will delete all of your queued data and all of your forms from the browser storage. The data will be lost forever and the forms will not be usable until you are back online. Use this only if your browser storage seems corrupt.",
+                "Before proceeding, please close all of your other Offline Form tabs. This page will reload. If you see an error, you may have to repeat this action.",
+                "Would you like to proceed?"
+            ],
+            "posButton": "Delete All"
+        },
         "print": {
             "queries": "Show History",
             "queryShow": "show",
@@ -154,6 +163,6 @@
         }
     },
     "submission": {
-        "http500": "There was a problem with your submission. Please try again or contact the Study Team if this persists."
+        "http500": "There was a problem with your submission. Please try again or contact __supportEmail__ if this persists."
     }
 }
