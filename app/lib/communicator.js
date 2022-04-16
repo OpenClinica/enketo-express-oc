@@ -270,7 +270,7 @@ const getUpdatedRequestHeaders = (
     headers = {},
     currentRequest = getCurrentRequest()
 ) => {
-    const clientUserAgent = currentRequest?headers['user-agent']:null;
+    const clientUserAgent = currentRequest?.headers['user-agent'];
     const serverUserAgent = `Enketo/${config.version}`;
     const userAgent =
         clientUserAgent == null
