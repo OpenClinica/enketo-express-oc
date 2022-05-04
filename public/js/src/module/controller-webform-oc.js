@@ -77,9 +77,9 @@ function init(formEl, data, loadErrors = []) {
 
                 fieldSubmissionQueue = new FieldSubmissionQueue();
 
-                if (data.instanceAttachments) {
+                if (data.survey.instanceAttachments) {
                     fileManager.setInstanceAttachments(
-                        data.instanceAttachments
+                        data.survey.instanceAttachments
                     );
                 }
 
