@@ -143,6 +143,14 @@
         "relevant": "An answer has changed to another question that requires this question to be hidden, but we cannot hide it while it has data. Please clear out the data or modify the dependent answers."
     },
     "alert": {
+        "appupdated": {
+            "heading": "App Updated!",
+            "msg": "Please refresh this webpage to use the form offline (ref: application)"
+        },
+        "formupdated": {
+            "heading": "Form Updated!",
+            "msg": "Please refresh this webpage to use the form offline (ref: definition)"
+        },
         "goto": {
             "irrelevant": "The item you are trying to access is currently hidden.",
             "invisible": "The item you are trying to access is not visible on the form.",
