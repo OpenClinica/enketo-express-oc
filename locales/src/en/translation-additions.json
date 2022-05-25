@@ -142,6 +142,9 @@
     "constraint": {
         "relevant": "An answer has changed to another question that requires this question to be hidden, but we cannot hide it while it has data. Please clear out the data or modify the dependent answers."
     },
+    "home": {
+        "msg": "__appTitle__ is running! Please access OpenClinica forms from your __serverName__ installation."
+    },
     "alert": {
         "appupdated": {
             "heading": "App Updated!",
@@ -171,6 +174,6 @@
         }
     },
     "submission": {
-        "http500": "There was a problem with your submission. Please try again or contact __supportEmail__ if this persists."
+        "http500": "The data server for your form or the OpenClinica server is down. Please try again later or contact __supportEmail__."
     }
 }
