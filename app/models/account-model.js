@@ -9,19 +9,8 @@ const customGetAccount = config['account lib']
     ? require(config['account lib']).getAccount
     : undefined;
 const pending = {};
-const client = require('redis').createClient(
-    config.redis.main.port,
-    config.redis.main.host,
-    {
-        auth_pass: config.redis.main.password,
-    }
-);
+const { mainClient } = require('../lib/db');
 // const debug = require( 'debug' )( 'account-model' );
-
-// in test environment, switch to different db
-if (process.env.NODE_ENV === 'test') {
-    client.select(15);
-}
 
 /**
  * @typedef AccountObj
@@ -137,20 +126,20 @@ function set(account) {
                 // to avoid issues with fast subsequent requests
                 pending[dbKey] = true;
 
-                client.hgetall(dbKey, (error, obj) => {
+                mainClient.hgetall(dbKey, (error, obj) => {
                     if (error) {
                         delete pending[dbKey];
                         reject(error);
                     } else if (!obj || obj.openRosaServer) {
                         // also update if deprecated openRosaServer property is present
-                        client.hmset(dbKey, account, (error) => {
+                        mainClient.hmset(dbKey, account, (error) => {
                             delete pending[dbKey];
                             if (error) {
                                 reject(error);
                             }
                             // remove deprecated field, don't wait for result
                             if (obj && obj.openRosaServer) {
-                                client.hdel(dbKey, 'openRosaServer');
+                                mainClient.hdel(dbKey, 'openRosaServer');
                             }
                             account.status = 201;
                             resolve(account);
@@ -208,7 +197,7 @@ function update(account) {
             resolve(account);
         } else {
             dbKey = `ac:${utils.cleanUrl(account.linkedServer)}`;
-            client.hgetall(dbKey, (error, obj) => {
+            mainClient.hgetall(dbKey, (error, obj) => {
                 if (error) {
                     reject(error);
                 } else if (!obj) {
@@ -219,13 +208,13 @@ function update(account) {
                     account.status = 200;
                     resolve(account);
                 } else {
-                    client.hmset(dbKey, account, (error) => {
+                    mainClient.hmset(dbKey, account, (error) => {
                         if (error) {
                             reject(error);
                         }
                         // remove deprecated field, don't wait for result
                         if (obj.openRosaServer) {
-                            client.hdel(dbKey, 'openRosaServer');
+                            mainClient.hdel(dbKey, 'openRosaServer');
                         }
                         account.status = 201;
                         resolve(account);
@@ -267,7 +256,7 @@ function remove(account) {
             reject(error);
         } else {
             dbKey = `ac:${utils.cleanUrl(account.linkedServer)}`;
-            client.hgetall(dbKey, (error, obj) => {
+            mainClient.hgetall(dbKey, (error, obj) => {
                 if (error) {
                     reject(error);
                 } else if (!obj) {
@@ -275,7 +264,7 @@ function remove(account) {
                     error.status = 404;
                     reject(error);
                 } else {
-                    client.del(dbKey, (error) => {
+                    mainClient.del(dbKey, (error) => {
                         if (error) {
                             reject(error);
                         } else {
@@ -305,13 +294,13 @@ function getList() {
     }
 
     return new Promise((resolve, reject) => {
-        client.keys('ac:*', (error, accounts) => {
+        mainClient.keys('ac:*', (error, accounts) => {
             if (error) {
                 reject(error);
             } else if (accounts.length === 0) {
                 resolve(list);
             } else if (accounts.length > 0) {
-                multi = client.multi();
+                multi = mainClient.multi();
 
                 accounts.forEach((account) => {
                     multi.hgetall(account);
@@ -398,7 +387,7 @@ function _getAccount(serverUrl) {
     }
 
     return new Promise((resolve, reject) => {
-        client.hgetall(`ac:${utils.cleanUrl(serverUrl)}`, (error, obj) => {
+        mainClient.hgetall(`ac:${utils.cleanUrl(serverUrl)}`, (error, obj) => {
             if (error) {
                 reject(error);
             }

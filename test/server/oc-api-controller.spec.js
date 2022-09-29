@@ -17,15 +17,6 @@ app.set('jini', {
 });
 const surveyModel = require('../../app/models/survey-model');
 const instanceModel = require('../../app/models/instance-model');
-const redis = require('redis');
-
-const client = redis.createClient(
-    config.redis.main.port,
-    config.redis.main.host,
-    {
-        auth_pass: config.redis.main.password,
-    }
-);
 
 describe('api', () => {
     const validApiKey = 'abc';
@@ -44,41 +35,20 @@ describe('api', () => {
     const validServer = 'https://testserver.com/bob';
     const validFormId = 'something';
 
-    beforeEach((done) => {
-        // add survey if it doesn't exist in the db
-        surveyModel
-            .set({
-                openRosaServer: validServer,
-                openRosaId: validFormId,
-            })
-            .then(() => {
-                done();
-            });
+    beforeEach(async () => {
+        await surveyModel.set({
+            openRosaServer: validServer,
+            openRosaId: validFormId,
+        });
     });
 
-    afterEach((done) => {
-        // select test database and flush it
-        client.select(15, (err) => {
-            if (err) {
-                return done(err);
-            }
-            client.flushdb((err) => {
-                if (err) {
-                    return done(err);
-                }
-
-                return instanceModel
-                    .set({
-                        openRosaServer: validServer,
-                        openRosaId: validFormId,
-                        instanceId: beingEdited,
-                        returnUrl: 'https://enketo.org',
-                        instance: '<data></data>',
-                    })
-                    .then(() => {
-                        done();
-                    });
-            });
+    afterEach(async () => {
+        await instanceModel.set({
+            openRosaServer: validServer,
+            openRosaId: validFormId,
+            instanceId: beingEdited,
+            returnUrl: 'https://enketo.org',
+            instance: '<data></data>',
         });
     });
 
