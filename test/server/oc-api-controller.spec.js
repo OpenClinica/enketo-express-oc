@@ -36,16 +36,16 @@ describe('api', () => {
     const validFormId = 'something';
 
     beforeEach(async () => {
-        await surveyModel.set({
+        const s = {
             openRosaServer: validServer,
             openRosaId: validFormId,
-        });
-    });
+        };
 
-    afterEach(async () => {
+        // add survey if it doesn't exist in the db
+        await surveyModel.set(s);
+
         await instanceModel.set({
-            openRosaServer: validServer,
-            openRosaId: validFormId,
+            ...s,
             instanceId: beingEdited,
             returnUrl: 'https://enketo.org',
             instance: '<data></data>',
@@ -407,13 +407,13 @@ describe('api', () => {
                     expected: /[A-z0-9]{8,10}/,
                 },
                 // already being edited
-                /* {
+                {
                     method: 'post',
                     auth: true,
                     instanceId: beingEdited,
                     instance: true,
                     status: 405,
-                }, */
+                },
                 // test return url in response
                 {
                     method: 'post',
@@ -633,13 +633,13 @@ describe('api', () => {
                         /\/edit\/fs\/dn(\/c)?\/i\/[A-z0-9]{32}.*(\?|&)instance_id/,
                 },
                 // already being edited
-                /* {
+                {
                     method: 'post',
                     auth: true,
                     instanceId: beingEdited,
                     instance: true,
                     status: 405,
-                }, */
+                },
                 // test return url in response
                 {
                     method: 'post',
@@ -749,14 +749,13 @@ describe('api', () => {
                     expected: /\/view\/fs\/i\/[A-z0-9]{32}.*(\?|&)instance_id/,
                 },
                 // already being edited
-                /*
                 {
                     method: 'post',
                     auth: true,
                     instanceId: beingEdited,
                     instance: true,
                     status: 201, // readonly view, so not blocked
-                }, */
+                },
                 // test load warning in response
                 {
                     method: 'post',
