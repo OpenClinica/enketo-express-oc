@@ -560,17 +560,6 @@ function _close(options = { autoQueries: false, reasons: false }) {
                     });
                 }
             }
-            // Note, if _close is called with options.autoQueries,
-            // the autoQueries should have fixed these violations when close is called again.
-            const strictViolations = form.view.html.querySelector(
-                settings.strictViolationSelector
-            );
-
-            if (strictViolations) {
-                throw new Error(
-                    t('fieldsubmission.alert.participanterror.msg')
-                );
-            }
         }
 
         const tAlertCloseMsg = t('fieldsubmission.alert.close.msg1');
