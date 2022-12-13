@@ -72,15 +72,21 @@
                 "msg": "試Please enter a suitable value to update the field."
             },
             "participanterror": {
-                "msg": [ "It looks like some fields need attention", "Please review them before proceeding." ]
+                "msg": [ "試It looks like some fields need attention", "Please review them before proceeding." ]
+            },
+            "signatureservicenotavailable": {
+                "msg": "試Signature service is currently not available. The question has been unchecked."
+            },
+            "signatureservicefailed":{
+                "msg": "試Signature not received. The question has been unchecked."
             }
         },
         "confirm": {
             "autoquery": {
                 "msg1": "試Some field values have errors. These must be addressed before the form is closed.",
                 "msg2": [
-                    "Click Cancel to return to the form to manually update the value or add a query for each field marked in red.",
-                    "Click Proceed to continue closing the form now.  A query will be automatically added for each field marked in red."
+                    "試Click Cancel to return to the form to manually update the value or add a query for each field marked in red.",
+                    "試Click Proceed to continue closing the form now.  A query will be automatically added for each field marked in red."
                 ],
                 "automatic": "試Proceed",
                 "manual": "試Cancel"
@@ -123,9 +129,9 @@
         "deleteall": {
             "heading": "試WARNING",
             "msg": [
-                "This will delete all of your queued data and all of your forms from the browser storage. The data will be lost forever and the forms will not be usable until you are back online. Use this only if your browser storage seems corrupt.",
-                "Before proceeding, please close all of your other Offline Form tabs. This page will reload. If you see an error, you may have to repeat this action.",
-                "Would you like to proceed?"
+                "試This will delete all of your queued data and all of your forms from the browser storage. The data will be lost forever and the forms will not be usable until you are back online. Use this only if your browser storage seems corrupt.",
+                "試Before proceeding, please close all of your other Offline Form tabs. This page will reload. If you see an error, you may have to repeat this action.",
+                "試Would you like to proceed?"
             ],
             "posButton": "試Delete All"
         },

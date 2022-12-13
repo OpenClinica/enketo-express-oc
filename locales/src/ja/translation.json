@@ -23,7 +23,7 @@
             "heading": "試Closing..."
         },
         "default": {
-            "button": "試Close",
+            "button": "閉じる",
             "heading": "試Alert"
         },
         "export": {
@@ -61,9 +61,9 @@
         "offlinesupported": {
             "heading": "試Form works offline!",
             "msg": [
-                "This form can now be loaded and used without an Internet connection on this device. Bookmark it for easy offline access.",
-                "Records are automatically stored and queued in your browser until an Internet connection is available. When the app is online, records will be automatically submitted - one by one.",
-                "Only after a record has been succesfully submitted, it will be removed from the queue. You can safely close down your browser and device with items in the queue. They will still be there next time you load the form."
+                "試This form can now be loaded and used without an Internet connection on this device. Bookmark it for easy offline access.",
+                "試Records are automatically stored and queued in your browser until an Internet connection is available. When the app is online, records will be automatically submitted - one by one.",
+                "試Only after a record has been successfully submitted, it will be removed from the queue. You can safely close down your browser and device with items in the queue. They will still be there next time you load the form."
             ]
         },
         "offlineunsupported": {
@@ -90,9 +90,9 @@
         "savedraftinfo": {
             "heading": "試Finalize record later",
             "msg": [
-                "The draft record is stored only within the current browser. You can close this browser without losing the stored record.",
-                "Draft records can be accessed by reopening this page and clicking the button on the left of the screen that looks like this: __icon__",
-                "Warning: If you clear your browser cache, all draft and unsubmitted final records will be permanently deleted."
+                "試The draft record is stored only within the current browser. You can close this browser without losing the stored record.",
+                "試Draft records can be accessed by reopening this page and clicking the button on the left of the screen that looks like this: __icon__",
+                "試Warning: If you clear your browser cache, all draft and unsubmitted final records will be permanently deleted."
             ]
         },
         "submission": {
@@ -102,8 +102,8 @@
         "submissionerror": {
             "authrequiredmsg": "試Authentication required. Please authenticate __here__ in a different browser tab and try again.",
             "fnfmsg": [
-                "The following media files could not be retrieved: __failedFiles__. The submission went ahead without these files and this succeeded.",
-                "Please contact __supportEmail__ to report a bug and if possible explain how the issue can be reproduced."
+                "試The following media files could not be retrieved: __failedFiles__. The submission went ahead without these files and this succeeded.",
+                "試Please contact __supportEmail__ to report a bug and if possible explain how the issue can be reproduced."
             ],
             "heading": "試Submission Failed"
         },
@@ -143,16 +143,16 @@
         "default": {
             "heading": "試Are you sure?",
             "msg": "試Please confirm this action",
-            "negButton": "試Cancel",
-            "posButton": "試Confirm"
+            "negButton": "キャンセル",
+            "posButton": "確認"
         },
         "deleteall": {
             "heading": "試PANIC!",
             "msg": [
-                "This will remove all your queued data and all your forms from the browser storage. Data will be lost forever. Use this only as a last resort if the browser storage seems corrupt.",
-                "Close all other Enketo browser tabs first.",
-                "The page will reload. If you see an error you may have to repeat this action.",
-                "Are you sure you want to do this?"
+                "試This will remove all your queued data and all your forms from the browser storage. Data will be lost forever. Use this only as a last resort if the browser storage seems corrupt.",
+                "試Close all other Enketo browser tabs first.",
+                "試The page will reload. If you see an error you may have to repeat this action.",
+                "試Are you sure you want to do this?"
             ],
             "posButton": "試Delete All"
         },
@@ -164,8 +164,8 @@
         "login": {
             "heading": "試Login Required",
             "msg": [
-                "In order to submit your queued data, you need to login. If you want to do this now, you will be redirected, and lose unsaved information.",
-                "Would you like to login now or later?"
+                "試In order to submit your queued data, you need to login. If you want to do this now, you will be redirected, and lose unsaved information.",
+                "試Would you like to login now or later?"
             ],
             "negButton": "試Later",
             "posButton": "試Log in now"
@@ -222,8 +222,8 @@
         "invalidediturl": "試Not a valid edit URL",
         "loadfailed": "試Failed to load __resource__",
         "notfoundinformlist": [
-            "Oops, this form doesn't exist (anymore). Most likely the owner of the form has deleted it, archived it, or disabled it. Please contact the form's owner to confirm.",
-            "Detailed error: Form with ID __formId__ not found in /formList."
+            "試Oops, this form doesn't exist (anymore). Most likely the owner of the form has deleted it, archived it, or disabled it. Please contact the form's owner to confirm.",
+            "試Detailed error: Form with ID __formId__ not found in /formList."
         ],
         "pagenotfound": "試Page not Found",
         "surveyidnotactive": "試Survey with this ID no longer active",
@@ -242,26 +242,26 @@
         "waitingForPermissions": "試Waiting for user permissions."
     },
     "form": {
-        "chooseLanguage": "試Choose Language",
+        "chooseLanguage": "言語選択",
         "logout": "試log out",
         "pages": {
-            "back": "試Back",
-            "end": "試Go to End",
-            "next": "試Next",
-            "return": "試Return to Beginning"
+            "back": "戻る",
+            "end": "最後に進む",
+            "next": "次へ",
+            "return": "最初に戻る"
         },
         "required": "試required"
     },
     "formfooter": {
         "complete": {
-            "btn": "試Complete"
+            "btn": "完了"
         },
         "savedraft": {
             "btn": "試Save Draft",
             "label": "試Save as Draft"
         },
         "submit": {
-            "btn": "試Submit"
+            "btn": "送信"
         },
         "validate": {
             "btn": "試Validate"
