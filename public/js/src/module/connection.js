@@ -648,6 +648,7 @@ function getDataFile(url, languageMap) {
                     result = utils.csvToXml(responseData, languageMap);
                     break;
                 case 'text/xml':
+                case 'application/xml':
                     result = parser.parseFromString(responseData, contentType);
                     break;
                 default:
