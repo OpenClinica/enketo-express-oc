@@ -49,7 +49,7 @@
         "file",
         "draw",
         "rank",
-        "analog-scale",
+        "../../../widget/analog-scale/analog-scalepicker",
         "../../../widget/discrepancy-note/dn-widget",
         "../../../widget/strict-class/strict-class",
         "../../../widget/signature-external/signature-external",

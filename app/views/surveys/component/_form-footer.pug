@@ -30,10 +30,10 @@ section.form-footer
             button(id="close-form", class=`btn ${completeButton ? 'btn-default' : 'btn-primary'} ${participant ? 'participant' : ''}`, data-i18n='alert.default.button')= t('alert.default.button')
           if completeButton
             button(id="complete-form", class=`btn btn-primary`)
-              i.icon.icon-check= ' '
               if !closeButton
                 span(data-i18n='alert.default.button')= t('alert.default.button')
               else
+                i.icon.icon-check= ' '
                 span(data-i18n='formfooter.complete.btn')= t('formfooter.complete.btn')
         a.btn.btn-primary.next-page(href="#")
           i.icon.icon-arrow-right

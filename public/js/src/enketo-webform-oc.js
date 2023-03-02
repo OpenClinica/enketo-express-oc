@@ -249,17 +249,21 @@ function _convertToReadonly(formParts, notesEnabled) {
     repeatModule.remove = () => {};
 
     // change status message
-    const msg = notesEnabled
-        ? t('fieldsubmission.noteonly.msg')
-        : t('fieldsubmission.readonly.msg');
+    const i18nKey = notesEnabled
+        ? 'fieldsubmission.noteonly.msg'
+        : 'fieldsubmission.readonly.msg';
     formheader.prepend(
         range.createContextualFragment(
-            `<div class="fieldsubmission-status readonly">${msg}</div>`
+            `<div class="fieldsubmission-status readonly" data-i18n="${i18nKey}">${t(
+                i18nKey
+            )}</div>`
         )
     );
     footer.prepend(
         range.createContextualFragment(
-            `<div class="form-footer__feedback fieldsubmission-status readonly">${msg}</div>`
+            `<div class="form-footer__feedback fieldsubmission-status readonly" data-i18n="${i18nKey}">${t(
+                i18nKey
+            )}</div>`
         )
     );
 

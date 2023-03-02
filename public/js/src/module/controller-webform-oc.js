@@ -91,8 +91,6 @@ function init(formEl, data, loadErrors = []) {
                     ? `<a href="${settings.goToErrorUrl}">${settings.goToErrorUrl}</a>`
                     : '';
 
-                fieldSubmissionQueue = new FieldSubmissionQueue();
-
                 if (data.survey.instanceAttachments) {
                     fileManager.setInstanceAttachments(
                         data.survey.instanceAttachments
@@ -345,7 +343,10 @@ function init(formEl, data, loadErrors = []) {
 
                     throw loadErrors;
                 } else {
-                    if (settings.type !== 'view') {
+                    if (
+                        settings.type !== 'view' &&
+                        settings.type !== 'preview'
+                    ) {
                         console.info('Submissions enabled');
                         // Current queue can be submitted, and so can future fieldsubmissions.
                         fieldSubmissionQueue.enable();
@@ -536,15 +537,19 @@ function _close(options = { autoQueries: false, reasons: false }) {
                     ...form.view.html.querySelectorAll(
                         '.invalid-constraint, .invalid-relevant'
                     ),
-                ].filter(
-                    (question) =>
-                        !question.querySelector(
-                            '.btn-comment.new, .btn-comment.updated'
-                        ) ||
-                        question.matches(
-                            '.or-group.invalid-relevant, .or-group-data.invalid-relevant'
-                        )
-                );
+                ]
+                    // The comment-status filter is actually only for invalid-relevant, because
+                    // invalid required and constraints would never have 'new' or 'updated'
+                    // query status (coded in the XForm logic).
+                    .filter(
+                        (question) =>
+                            !question.querySelector(
+                                '.btn-comment.new, .btn-comment.updated'
+                            ) ||
+                            question.matches(
+                                '.or-group.invalid-relevant, .or-group-data.invalid-relevant'
+                            )
+                    );
 
                 // First check if any constraints have been violated and prompt option to generate automatic queries
                 if (violations.length) {
@@ -556,17 +561,18 @@ function _close(options = { autoQueries: false, reasons: false }) {
                         const newOptions = { ...options };
                         newOptions.autoQueries = false;
 
-                        return _close(options);
+                        return _close(newOptions);
                     });
                 }
             }
             // Note, if _close is called with options.autoQueries,
-            // the autoQueries should have fixed these violations when close is called again.
+            // the autoQueries should have fixed constraint and required violations when close is called again.
+            // However, relevant violations are not fixed by autoqueries.
             const strictViolations = form.view.html.querySelector(
                 settings.strictViolationSelector
             );
 
-            if (strictViolations) {
+            if (settings.participant && strictViolations) {
                 throw new Error(
                     t('fieldsubmission.alert.participanterror.msg')
                 );
@@ -702,11 +708,15 @@ function _complete(
             const strictViolations = form.view.html.querySelector(
                 settings.strictViolationSelector
             );
-            if (strictViolations) {
+
+            if (strictViolations && !form.model.isMarkedComplete()) {
                 throw new Error(
                     t('fieldsubmission.alert.participanterror.msg')
                 );
-            } else if (form.view.html.querySelector('.invalid-relevant')) {
+            } else if (
+                !form.model.isMarkedComplete() &&
+                form.view.html.querySelector('.invalid-relevant')
+            ) {
                 const msg = t(
                     'fieldsubmission.alert.relevantvalidationerror.msg'
                 );
@@ -719,15 +729,21 @@ function _complete(
                     ...form.view.html.querySelectorAll(
                         '.invalid-constraint, .invalid-required, .invalid-relevant'
                     ),
-                ].filter(
-                    (question) =>
-                        !question.querySelector(
-                            '.btn-comment.new, .btn-comment.updated'
-                        ) ||
-                        question.matches(
-                            '.or-group.invalid-relevant, .or-group-data.invalid-relevant'
-                        )
-                );
+                ]
+                    // The comment-status filter is actually only for invalid-relevant, because
+                    // invalid required and constraints would never have 'new' or 'updated'
+                    // query status (coded in the XForm logic).
+                    .filter(
+                        (question) =>
+                            !question.querySelector(
+                                '.btn-comment.new, .btn-comment.updated'
+                            ) ||
+                            question.matches(
+                                '.or-group.invalid-relevant, .or-group-data.invalid-relevant'
+                            )
+                    );
+
+                console.log('violations', violations);
 
                 if (violations.length) {
                     return gui.confirmAutoQueries().then((confirmed) => {
@@ -741,75 +757,74 @@ function _complete(
                         return _complete(true, newOptions);
                     });
                 }
-            } else {
+            } else if (
+                !form.model.isMarkedComplete()
+                // A complete record with errors will have passed through the
+                // autoquery stage first. Therefore its errors are now acceptable even though
+                // relevant errors and strict errors will not have been resolved by the autoqueries
+            ) {
                 const msg = t('fieldsubmission.alert.validationerror.msg');
                 throw new Error(msg);
             }
-        } else {
-            let beforeMsg;
-            let authLink;
-            let instanceId;
-            let deprecatedId;
-            let msg = '';
+        }
 
-            form.view.html.dispatchEvent(events.BeforeSave());
+        let beforeMsg;
+        let authLink;
+        let instanceId;
+        let deprecatedId;
+        let msg = '';
 
-            beforeMsg = t('alert.submission.redirectmsg');
-            authLink = `<a href="/login" target="_blank">${t('here')}</a>`;
+        form.view.html.dispatchEvent(events.BeforeSave());
 
-            gui.alert(
-                `${beforeMsg}<div class="loader-animation-small" style="margin: 40px auto 0 auto;"/>`,
-                t('alert.submission.msg'),
-                'bare'
-            );
+        beforeMsg = t('alert.submission.redirectmsg');
+        authLink = `<a href="/login" target="_blank">${t('here')}</a>`;
 
-            return fieldSubmissionQueue
-                .submitAll()
-                .then(() => {
-                    if (Object.keys(fieldSubmissionQueue.get()).length === 0) {
-                        instanceId = form.instanceID;
-                        deprecatedId = form.deprecatedID;
-                        if (!form.model.isMarkedComplete()) {
-                            return fieldSubmissionQueue.complete(
-                                instanceId,
-                                deprecatedId
-                            );
-                        }
-                    } else {
-                        throw new Error(
-                            t('fieldsubmission.alert.complete.msg')
+        gui.alert(
+            `${beforeMsg}<div class="loader-animation-small" style="margin: 40px auto 0 auto;"/>`,
+            t('alert.submission.msg'),
+            'bare'
+        );
+
+        return fieldSubmissionQueue
+            .submitAll()
+            .then(() => {
+                if (Object.keys(fieldSubmissionQueue.get()).length === 0) {
+                    instanceId = form.instanceID;
+                    deprecatedId = form.deprecatedID;
+                    if (!form.model.isMarkedComplete()) {
+                        return fieldSubmissionQueue.complete(
+                            instanceId,
+                            deprecatedId
                         );
                     }
-                })
-                .then(() => {
-                    // this event is used in communicating back to iframe parent window
-                    document.dispatchEvent(events.SubmissionSuccess());
+                } else {
+                    throw new Error(t('fieldsubmission.alert.complete.msg'));
+                }
+            })
+            .then(() => {
+                // this event is used in communicating back to iframe parent window
+                document.dispatchEvent(events.SubmissionSuccess());
 
-                    msg += t('alert.submissionsuccess.redirectmsg');
-                    gui.alert(
-                        msg,
-                        t('alert.submissionsuccess.heading'),
-                        'success'
-                    );
-                    _redirect();
-                })
-                .catch((result) => {
-                    result = result || {};
+                msg += t('alert.submissionsuccess.redirectmsg');
+                gui.alert(msg, t('alert.submissionsuccess.heading'), 'success');
+                _redirect();
+            })
+            .catch((result) => {
+                result = result || {};
 
-                    if (result.status === 401) {
-                        msg = t('alert.submissionerror.authrequiredmsg', {
-                            here: authLink,
-                        });
-                    } else {
-                        msg =
-                            result.message ||
-                            gui.getErrorResponseMsg(result.status);
-                    }
-                    gui.alert(msg, t('alert.submissionerror.heading'));
-                    // meant to be used in headless mode to output in API response
-                    throw new Error(msg);
-                });
-        }
+                if (result.status === 401) {
+                    msg = t('alert.submissionerror.authrequiredmsg', {
+                        here: authLink,
+                    });
+                } else {
+                    msg =
+                        result.message ||
+                        gui.getErrorResponseMsg(result.status);
+                }
+                gui.alert(msg, t('alert.submissionerror.heading'));
+                // meant to be used in headless mode to output in API response
+                throw new Error(msg);
+            });
     });
 }
 
@@ -1323,11 +1338,6 @@ function _setFormEventHandlers() {
                             ) {
                                 clearTimeout(timeoutId);
                                 resetQuestion();
-                                gui.alert(
-                                    t(
-                                        'fieldsubmission.alert.signatureservicefailed.msg'
-                                    )
-                                );
                                 window.removeEventListener(
                                     'message',
                                     receiveMessage
@@ -1393,6 +1403,13 @@ function _setLanguageUiEventHandlers() {
             );
         });
     }
+
+    // This actually belongs in gui.js but that module doesn't have access to the form object.
+    // This handler is also used in forms that have no translation (and thus no defined language).
+    // See scenario X in https://docs.google.com/spreadsheets/d/1CigMLAQewcXi-OJJHi_JQQ-fJXOam99livM0oYrtbkk/edit#gid=1504432290
+    document.addEventListener(events.AddRepeat().type, (event) => {
+        localize(event.target, form.currentLanguage);
+    });
 }
 
 /**
@@ -1407,7 +1424,7 @@ function _setButtonEventHandlers(survey) {
         };
         completeButton.addEventListener('click', () => {
             const $button = $(completeButton).btnBusyState(true);
-            _complete(false, options)
+            _complete(form.model.isMarkedComplete(), options)
                 .catch((e) => {
                     gui.alert(e.message);
                 })
@@ -1438,6 +1455,54 @@ function _setButtonEventHandlers(survey) {
             return false;
         });
     }
+
+    $('button#validate-form:not(.disabled)').click(function () {
+        if (typeof form !== 'undefined') {
+            const $button = $(this);
+            $button.btnBusyState(true);
+            setTimeout(() => {
+                form.validate()
+                    .then((valid) => {
+                        $button.btnBusyState(false);
+                        if (!valid) {
+                            if (settings.strictViolationSelector) {
+                                const strictViolations =
+                                    form.view.html.querySelector(
+                                        settings.strictViolationSelector
+                                    );
+                                if (strictViolations) {
+                                    gui.alert(
+                                        t(
+                                            'fieldsubmission.confirm.autoquery.msg1'
+                                        ),
+                                        null,
+                                        'oc-strict-error'
+                                    );
+                                } else {
+                                    gui.alert(t('alert.validationerror.msg'));
+                                }
+                            } else {
+                                gui.alert(t('alert.validationerror.msg'));
+                            }
+                        } else {
+                            gui.alert(
+                                t('alert.validationsuccess.msg'),
+                                t('alert.validationsuccess.heading'),
+                                'success'
+                            );
+                        }
+                    })
+                    .catch((e) => {
+                        gui.alert(e.message);
+                    })
+                    .then(() => {
+                        $button.btnBusyState(false);
+                    });
+            }, 100);
+        }
+
+        return false;
+    });
 
     // Participant views that submit the whole record (i.e. not fieldsubmissions).
     if (settings.fullRecord) {

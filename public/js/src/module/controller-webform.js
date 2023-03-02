@@ -2,9 +2,9 @@
  * Deals with the main high level survey controls: saving, submitting etc.
  */
 
+import { Form } from 'enketo-core';
 import downloadUtils from 'enketo-core/src/js/download-utils';
 import $ from 'jquery';
-import { Form } from './form';
 import gui from './gui';
 import connection from './connection';
 import settings from './settings';
@@ -735,25 +735,7 @@ function _setEventHandlers(survey) {
                     .then((valid) => {
                         $button.btnBusyState(false);
                         if (!valid) {
-                            if (settings.strictViolationSelector) {
-                                const strictViolations =
-                                    form.view.html.querySelector(
-                                        settings.strictViolationSelector
-                                    );
-                                if (strictViolations) {
-                                    gui.alert(
-                                        t(
-                                            'fieldsubmission.confirm.autoquery.msg1'
-                                        ),
-                                        null,
-                                        'oc-strict-error'
-                                    );
-                                } else {
-                                    gui.alert(t('alert.validationerror.msg'));
-                                }
-                            } else {
-                                gui.alert(t('alert.validationerror.msg'));
-                            }
+                            gui.alert(t('alert.validationerror.msg'));
                         } else {
                             gui.alert(
                                 t('alert.validationsuccess.msg'),
@@ -891,6 +873,12 @@ function _setEventHandlers(survey) {
             );
         });
     }
+    // This actually belongs in gui.js but that module doesn't have access to the form object.
+    // This handler is also used in forms that have no translation (and thus no defined language).
+    // See scenario X in https://docs.google.com/spreadsheets/d/1CigMLAQewcXi-OJJHi_JQQ-fJXOam99livM0oYrtbkk/edit#gid=1504432290
+    document.addEventListener(events.AddRepeat().type, (event) => {
+        localize(event.target, form.currentLanguage);
+    });
 
     if (settings.offline) {
         document.addEventListener(

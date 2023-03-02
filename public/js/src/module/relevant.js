@@ -198,9 +198,9 @@ branchModule.deactivate = function (branchNode) {
                             const selector = `.calculation > [name="${path}"], .or-appearance-dn > [name="${path}"], [readonly]:not(.readonly-forced)[name="${path}"]`;
                             // If a repeat has zero instances, the search for .or-appearance-dn in form.html will result in null, which means the dn-detection would fail.
                             const searchElements = [this.form.view.html].concat(
-                                Object.entries(this.form.repeats.templates).map(
-                                    (entries) => entries[1]
-                                )
+                                Object.entries(
+                                    this.form.repeats.templates || {}
+                                ).map((entries) => entries[1])
                             );
                             const ignore = searchElements.some(
                                 (e) => !!e.querySelector(selector)

@@ -308,6 +308,7 @@ $secondary-color: #eeeeee;
 
                 .previous-page,
                 #close-form,
+                #complete-form,
                 .next-page {
                     margin-left: $marg;
                     margin-right: $marg;
@@ -337,7 +338,8 @@ $secondary-color: #eeeeee;
                 #close-form,
                 #save-draft,
                 #submit-form,
-                #validate-form {
+                #validate-form,
+                #complete-form {
                     order: 2;
                 }
 
@@ -346,7 +348,7 @@ $secondary-color: #eeeeee;
                 }
 
                 #close-form.participant,
-                #complete-form {
+                #close-form ~ #complete-form {
                     visibility: hidden;
                 }
 
@@ -365,7 +367,7 @@ $secondary-color: #eeeeee;
                     }
                 }
 
-                #complete-form {
+                #close-form ~ #complete-form {
                     display: block;
                     margin: 0 30% 20px 30%;
                     order: 4;
@@ -384,7 +386,7 @@ $secondary-color: #eeeeee;
 
     &.end {
 
-        #complete-form,
+        #close-form ~ #complete-form,
         #submit-form,
         #close-form.participant,
         #validate-form {

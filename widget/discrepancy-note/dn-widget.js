@@ -259,6 +259,9 @@ class Comment extends Widget {
                     this._addQuery(
                         t('widget.dn.autoconstraint', {
                             errorMsg,
+                            interpolation: {
+                                escapeValue: false,
+                            },
                         }),
                         'new',
                         '',

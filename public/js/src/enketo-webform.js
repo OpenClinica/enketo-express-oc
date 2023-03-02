@@ -1,4 +1,4 @@
-import { FormModel } from './module/form-model';
+import { FormModel } from 'enketo-core/src/js/form-model';
 import gui from './module/gui';
 import controller from './module/controller-webform';
 import settings from './module/settings';
@@ -183,9 +183,7 @@ function _addBranding(survey) {
         brandImg.src = '';
         brandImg.setAttribute(attribute, survey.branding.source);
     }
-    if (brandImg) {
-        brandImg.classList.remove('hide');
-    }
+    brandImg.classList.remove('hide');
 
     return survey;
 }

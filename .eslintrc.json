@@ -39,10 +39,12 @@
         "react/destructuring-assignment": "off",
 
         "array-callback-return": "warn",
+        "class-methods-use-this": "warn",
         "consistent-return": "warn",
         "global-require": "warn",
         "import/order": "warn",
         "import/extensions": "warn",
+        "no-new": "warn",
         "no-param-reassign": "warn",
         "no-plusplus": "warn",
         "no-promise-executor-return": "warn",

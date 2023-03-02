@@ -19,7 +19,7 @@ block style
   link(rel='stylesheet', media=`${media}`, type='text/css' href=`${basePath}${offlinePath || ''}/css/theme-${defaultTheme}.print.css`)
 
 block script
-  - var suffix = (type && type !== 'preview' && type !== 'single') ? '-' + (type === 'full' || type === 'fieldsubmission' ? 'oc' : type): ''
+  - var suffix = (type && type !== 'single') ? '-' + (type === 'full' || type === 'preview' || type === 'fieldsubmission' ? 'oc' : type): ''
     script#main-script(defer, module, src=`${basePath}${offlinePath || ''}/js/build/enketo-webform${suffix}.js`)
 
   -// load jini stuff asynchronously (OC)

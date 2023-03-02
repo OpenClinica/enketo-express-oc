@@ -38,38 +38,44 @@ class FieldSubmissionQueue {
          */
         this._uploadStatus = {
             init() {
-                if (!this._$box) {
-                    this._$box = $('<div class="fieldsubmission-status"/>')
-                        .prependTo('.form-header')
-                        .add(
-                            $(
-                                '<div class="form-footer__feedback fieldsubmission-status"/>'
-                            ).prependTo('.form-footer')
-                        );
+                this.statusElements = document.querySelectorAll(
+                    '.fieldsubmission-status'
+                );
+                if (!this.statusElements.length) {
+                    const range = document.createRange();
+                    const first = range.createContextualFragment(
+                        '<div class="fieldsubmission-status"/>'
+                    );
+                    const second = range.createContextualFragment(
+                        '<div class="form-footer__feedback fieldsubmission-status"/>'
+                    );
+                    const formHeader = document.querySelector('.form-header');
+                    const formFooter = document.querySelector('.form-footer');
+                    if (formHeader) {
+                        formHeader.prepend(first);
+                    }
+                    if (formFooter) {
+                        formFooter.prepend(second);
+                    }
+                    this.statusElements = document.querySelectorAll(
+                        '.fieldsubmission-status'
+                    );
                 }
             },
-            _getBox() {
-                return this._$box;
-            },
-            _getText(status) {
-                return {
-                    ongoing: t('fieldsubmission.feedback.ongoing'),
-                    success: t('fieldsubmission.feedback.success'),
-                    fail: t('fieldsubmission.feedback.fail'),
-                    disabled: t('fieldsubmission.feedback.disabled'),
-                }[status];
-            },
-            _updateClass(status) {
-                this._getBox()
-                    .removeClass('ongoing success error fail')
-                    .addClass(status)
-                    .text(this._getText(status));
-            },
             update(status) {
-                // if ( /\/fs\/dnc?\//.test( window.location.pathname ) ) {
-                //    return;
-                // }
-                this._updateClass(status);
+                this.statusElements.forEach((element) => {
+                    element.classList.remove([
+                        'ongoing',
+                        'success',
+                        'error',
+                        'fail',
+                    ]);
+                    element.classList.add(status);
+                    element.dataset.i18n = `fieldsubmission.feedback.${status}`;
+                    element.textContent = t(
+                        `fieldsubmission.feedback.${status}`
+                    );
+                });
             },
         };
 
@@ -226,7 +232,7 @@ class FieldSubmissionQueue {
     _submitOne(url, fd = null, method = 'POST') {
         const that = this;
         let error;
-
+        // TODO: convert to use fetch()
         return new Promise((resolve, reject) => {
             $.ajax(url, {
                 type: method,
@@ -266,7 +272,7 @@ class FieldSubmissionQueue {
 
     complete(instanceId, deprecatedId) {
         if (!this._enabled) {
-            this._uploadStatus('disabled');
+            this._uploadStatus.update('disabled');
 
             return Promise.reject(
                 new Error(
