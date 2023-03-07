@@ -75,6 +75,7 @@ async function get(url, options = {}) {
             },
             scale: options.scale,
             printBackground: true,
+            timeout: 300000,
         });
     } catch (e) {
         e.status = e.status || 400;
