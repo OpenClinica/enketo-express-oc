@@ -133,7 +133,10 @@ function init(formEl, data, loadErrors = []) {
                 form = new Form(formEl, data, formOptions);
                 replaceModelMediaSources(form, media);
 
-                fieldSubmissionQueue = new FieldSubmissionQueue();
+                fieldSubmissionQueue = new FieldSubmissionQueue({
+                    showStatus:
+                        settings.type !== 'view' && settings.type !== 'preview',
+                });
 
                 // Buffer inputupdate events (DURING LOAD ONLY), in order to eventually log these
                 // changes in the DN widget after it has been initalized
