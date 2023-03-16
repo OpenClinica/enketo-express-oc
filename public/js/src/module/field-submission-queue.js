@@ -22,7 +22,7 @@ const FIELDSUBMISSION_COMPLETE_URL = settings.enketoId
     : null;
 
 class FieldSubmissionQueue {
-    constructor() {
+    constructor(options = { showStatus: true }) {
         this.submissionQueue = {};
         this.submissionOngoing = null;
         this.lastAdded = {};
@@ -63,19 +63,21 @@ class FieldSubmissionQueue {
                 }
             },
             update(status) {
-                this.statusElements.forEach((element) => {
-                    element.classList.remove([
-                        'ongoing',
-                        'success',
-                        'error',
-                        'fail',
-                    ]);
-                    element.classList.add(status);
-                    element.dataset.i18n = `fieldsubmission.feedback.${status}`;
-                    element.textContent = t(
-                        `fieldsubmission.feedback.${status}`
-                    );
-                });
+                if (options.showStatus) {
+                    this.statusElements.forEach((element) => {
+                        element.classList.remove([
+                            'ongoing',
+                            'success',
+                            'error',
+                            'fail',
+                        ]);
+                        element.classList.add(status);
+                        element.dataset.i18n = `fieldsubmission.feedback.${status}`;
+                        element.textContent = t(
+                            `fieldsubmission.feedback.${status}`
+                        );
+                    });
+                }
             },
         };
 
