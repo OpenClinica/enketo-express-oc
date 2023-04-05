@@ -16,8 +16,8 @@
             }
         },
         "appupdated": {
-            "heading": "Bitte aktualisieren",
-            "msg": "Aktualisieren Sie diese Webseite, damit Formulare offline verwenden werden können (Ref.: Anwendung)"
+            "heading": "App aktualisiert!",
+            "msg": "Eine neue Version dieser Anwendung wurde heruntergeladen. Aktualisieren Sie diese Seite, um die aktualisierte Version zu laden."
         },
         "closing": {
             "heading": "Wird geschlossen..."
@@ -38,21 +38,21 @@
             }
         },
         "formupdated": {
-            "heading": "Bitte aktualisieren",
-            "msg": "Aktualisieren Sie diese Webseite, damit Formulare offline verwenden werden können (Ref.: Definition)"
+            "heading": "Formular aktualisiert!",
+            "msg": "Eine neue Version dieses Formulars wurde heruntergeladen. Aktualisieren Sie diese Seite, um die aktualisierte Version zu laden."
         },
         "gotonotfound": {
             "msg": "Frage „__path__“ wurde im Formular nicht gefunden. Ist der Verweis auf diese Frage korrekt?"
         },
         "loaderror": {
-            "editadvice": "",
-            "entryadvice": "",
-            "heading": "Einen Moment bitte...",
-            "msg1": "Wenden Sie sich bitte an Ihr Supportteam mit einem Link auf diese Seite und der nachstehenden Meldung, wenn Sie weitere Hilfe benötigen.",
-            "msg2": "",
-            "heading_plural": "Einen Moment bitte...",
-            "msg1_plural": "Wenden Sie sich bitte an Ihr Supportteam mit einem Link auf diese Seite und den nachstehenden Meldungen, wenn Sie weitere Hilfe benötigen.",
-            "msg2_plural": ""
+            "editadvice": "Wir empfehlen Ihnen, diesen Datensatz nicht zu bearbeiten, bis dieses Problem behoben ist.",
+            "entryadvice": "Wir empfehlen Ihnen, dieses Formular nicht für die Dateneingabe zu verwenden, bis dieses Problem behoben ist.",
+            "heading": "Fehler beim Laden",
+            "msg1": "Beim Laden dieses Formulars ist ein Fehler aufgetreten.",
+            "msg2": "Wenden Sie sich bitte an __emailLink__ mit einem Link auf diese Seite und der nachstehenden Fehlermeldung:",
+            "heading_plural": "Fehler beim Laden",
+            "msg1_plural": "Beim Laden dieses Formulars sind Fehler aufgetreten.",
+            "msg2_plural": "Wenden Sie sich bitte an __emailLink__ mit einem Link auf diese Seite und den nachstehenden Fehlermeldungen:"
         },
         "logout": {
             "heading": "Abgemeldet",
@@ -97,8 +97,7 @@
         },
         "submission": {
             "msg": "Wird übermittelt...",
-            "redirectmsg": "Nach der Übermittlung werden Sie automatisch umgeleitet.",
-            "http500": "Es ist ein Problem mit Ihrer Übermittlung aufgetreten. Versuchen Sie es erneut oder wenden Sie sich an __supportEmail__, wenn das Problem weiterhin besteht."
+            "redirectmsg": "Nach der Übermittlung werden Sie automatisch umgeleitet."
         },
         "submissionerror": {
             "authrequiredmsg": "Authentifizierung erforderlich. Authentifizieren Sie sich __here__ auf einer anderen Browser-Registerkarte und versuchen Sie es erneut.",
@@ -131,27 +130,10 @@
         "xpatherror": {
             "heading": "Formelfehler",
             "msg": "Bei der Auswertung der Formel ist ein Fehler aufgetreten. Kontaktieren Sie __emailLink__ mit diesem Fehler:"
-        },
-        "goto": {
-            "irrelevant": "Das Element, auf das Sie zugreifen möchten, ist aktuell ausgeblendet.",
-            "invisible": "Das Element, auf das Sie zugreifen möchten, ist auf dem Formular nicht sichtbar.",
-            "notfound": "Das Element, auf das Sie zugreifen möchten, wurde aus diesem Formular entfernt.",
-            "msg1": "Verwenden Sie das Symbol „Nur Abfrage anzeigen“ anstatt des Symbols „Abfrage im Datensatz anzeigen“, um es anzuzeigen.",
-            "msg2": "Besuchen Sie __miniform__, um es anzuzeigen.",
-            "form": "dieses Formular"
         }
     },
     "changelog": "Änderungsprotokoll",
     "confirm": {
-        "deleteall": {
-            "heading": "WARNUNG",
-            "msg": [
-                "Damit werden alle Daten in der Warteschlange und alle Ihre Formulare aus dem Browserspeicher gelöscht. Die Daten sind für immer verloren und die Formulare können erst erneut verwendet werden, wenn Sie wieder online sind. Verwenden Sie dies nur, wenn Ihr Browserspeicher beschädigt ist.",
-                "Schließen Sie vor dem Fortfahren alle anderen Registerkarten der Offline-Formulare. Diese Seite wird neu geladen. Wenn ein Fehler angezeigt wird, müssen Sie diese Aktion möglicherweise wiederholen.",
-                "Möchten Sie fortfahren?"
-            ],
-            "posButton": "Alle löschen"
-        },
         "autosaveload": {
             "heading": "Nicht gespeicherten Datensatz gefunden",
             "msg": "Enketo hat einen nicht gespeicherten Datensatz gefunden. Möchten Sie diesen Datensatz laden oder verwerfen?",
@@ -163,6 +145,16 @@
             "msg": "Bitte bestätigen Sie diese Aktion",
             "negButton": "Abbrechen",
             "posButton": "Bestätigen"
+        },
+        "deleteall": {
+            "heading": "ACHTUNG!",
+            "msg": [
+                "Damit werden alle Daten aus der Warteschlange und alle Ihre Formulare aus dem Browserspeicher entfernt. Die Daten sind für immer verloren. Verwenden Sie dies nur als letztes Mittel, wenn Ihr Browserspeicher beschädigt ist.",
+                "Schließen Sie zuerst alle Enketo-Browser-Registerkarten.",
+                "Die Seite wird neu geladen. Wenn ein Fehler angezeigt wird, müssen Sie diese Aktion möglicherweise wiederholen.",
+                "Möchten Sie diese Aktion wirklich durchführen?"
+            ],
+            "posButton": "Alle löschen"
         },
         "discardcurrent": {
             "heading": "Nicht gespeicherte Bearbeitungen",
@@ -180,22 +172,19 @@
         },
         "print": {
             "a4": "A4",
+            "heading": "Druckeinstellungen auswählen",
             "landscape": "Querformat",
             "letter": "Letter",
+            "msg": "Zum Vorbereiten eines optimierten Ausdrucks wählen Sie die Druckeinstellungen unten aus.",
             "orientation": "Papierausrichtung",
             "portrait": "Hochformat",
             "posButton": "Vorbereiten",
             "psize": "Papierformat",
-            "reminder": "Denken Sie daran, die gleichen Druckeinstellungen anschließend im Druckmenü des Browsers vorzunehmen!",
-            "queries": "Verlauf anzeigen",
-            "queryShow": "anzeigen",
-            "heading": "Optionen",
-            "msg": "Zum Vorbereiten eines optimierten Ausdrucks wählen Sie die Optionen unten aus."
-
+            "reminder": "Denken Sie daran, die gleichen Druckeinstellungen anschließend im Druckmenü des Browsers vorzunehmen!"
         },
         "repeatremove": {
             "heading": "Diese Antwortgruppe löschen?",
-            "msg": "Diese Aktion kann nicht rückgängig gemacht werden (sie wird im Prüfpfad erfasst). Möchten Sie wirklich fortfahren?"
+            "msg": "Diese Aktion kann nicht rückgängig gemacht werden. Möchten Sie wirklich fortfahren?"
         },
         "save": {
             "existingerror": "Datensatzname oder ID ist bereits vorhanden. Bitte ändern.",
@@ -209,8 +198,7 @@
     },
     "constraint": {
         "invalid": "Wert nicht zulässig",
-        "required": "Dieses Feld ist erforderlich.",
-        "relevant": "Durch eine Antwort wurde zu einer anderen Frage gewechselt, für die diese Frage ausgeblendet werden muss, sie kann aber nicht ausgeblendet werden, solange sie Daten enthält. Löschen Sie die Daten oder ändern Sie die abhängigen Antworten."
+        "required": "Dieses Feld ist erforderlich."
     },
     "contact": {
         "admin": "Bitte wenden Sie sich an den Umfrage-Administrator.",
@@ -233,10 +221,8 @@
         "instancenotfound": "Datensatz nicht vorhanden. Er ist möglicherweise abgelaufen.",
         "invalidediturl": "Keine gültige Bearbeitungs-URL",
         "loadfailed": "Laden von __resource__ fehlgeschlagen.",
-        "notfoundinformlist": [
-            "Dieses Formular ist nicht (mehr) vorhanden. Höchstwahrscheinlich hat es der Eigentümer des Formulars gelöscht, archiviert oder deaktiviert. Bitte kontaktieren Sie den Eigentümer des Formulars, um dies zu bestätigen.",
-            "Detaillierter Fehler: Formular mit ID __formId__ nicht in /formList gefunden."
-        ],
+        "notfoundinformlist": "Dieses Formular ist nicht vorhanden oder Sie haben keinen Zugriff mehr darauf. Überprüfen Sie die URL auf fehlende Zeichen.\n\nFalls das Formular einmal vorhanden war, könnte es archiviert, deaktiviert oder gelöscht worden sein. Falls das alles unerwartet ist, wenden Sie sich an die Person, die Sie darum gebeten hat, das Formular auszufüllen.\n\n(Versuchter Zugriff auf das Formular mit der ID: __formId__)",
+        "notfounddirectformurl": "Dieses Formular ist nicht vorhanden oder Sie haben keinen Zugriff mehr darauf. Überprüfen Sie die URL auf fehlende Zeichen.\n\nFalls das Formular einmal vorhanden war, könnte es archiviert, deaktiviert oder gelöscht worden sein. Falls das alles unerwartet ist, wenden Sie sich an die Person, die Sie darum gebeten hat, das Formular auszufüllen.\n\n(Versuchter Zugriff auf das Formular: __notfounddirectformurl__)",
         "pagenotfound": "Seite nicht gefunden",
         "surveyidnotactive": "Umfrage mit dieser ID ist nicht mehr aktiv",
         "surveyidnotfound": "Umfrage mit dieser ID nicht gefunden",
@@ -299,7 +285,7 @@
         }
     },
     "home": {
-        "msg": "__appTitle__ wird ausgeführt. Rufen Sie OpenClinica-Formulare von Ihrer __serverName__-Installation aus auf."
+        "msg": "__appTitle__ wird ausgeführt. Rufen Sie Enketo-Formulare von Ihrer __serverName__-Installation aus auf."
     },
     "imagemap": {
         "svgNotFound": "SVG-Bild nicht gefunden"
@@ -413,7 +399,8 @@
     "widget": {
         "comment": {
             "update": "Aktualisieren"
-        },
+        }
+    },
         "dn": {
             "assignto": "Zuweisen zu:",
             "assignedto": "__id__ zugewiesen zu __assignee__.",
@@ -487,6 +474,12 @@
             },
             "participanterror": {
                 "msg": [ "Einige Felder scheinen Ihre Aufmerksamkeit zu benötigen.", "Überprüfen Sie sie, bevor Sie fortfahren." ]
+            },
+            "signatureservicenotavailable": {
+                "msg": "Der Signaturservice ist aktuell nicht verfügbar. Die Markierung der Frage wurde aufgehoben."
+            },
+            "signatureservicefailed":{
+                "msg": "Signatur nicht empfangen. Die Markierung der Frage wurde aufgehoben."
             }
         },
         "confirm": {
