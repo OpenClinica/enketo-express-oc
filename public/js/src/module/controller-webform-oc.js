@@ -380,22 +380,15 @@ function init(formEl, data, loadErrors = []) {
                     console.log('doing headless things');
                     gui.prompt = () => Promise.resolve(true);
                     gui.confirm = () => Promise.resolve(true);
+                    gui.confirmAutoQueries = () => Promise.resolve(true);
 
                     if (loadErrors.length) {
                         action = Promise.reject(new Error(loadErrors[0]));
                     } else if (settings.reasonForChange) {
-                        if (!form.model.isMarkedComplete()) {
-                            action = Promise.reject(
-                                new Error(
-                                    'Attempt to load RFC view for non-completed record.'
-                                )
-                            );
-                        } else {
-                            action = _complete(true, {
-                                autoQueries: true,
-                                reasons: true,
-                            });
-                        }
+                        action = _complete(true, {
+                            autoQueries: true,
+                            reasons: true,
+                        });
                     } else {
                         action = _close({ autoQueries: true });
                     }
