@@ -532,5 +532,62 @@
             "applytoall": "Für alle anwenden",
             "questionmsg": "Geben Sie einen Grund für die Änderung unten auf der Seite ein."
         }
+    },
+    "confirm": {
+        "deleteall": {
+            "heading": "WARNUNG",
+            "msg": [
+                "Damit werden alle Daten in der Warteschlange und alle Ihre Formulare aus dem Browserspeicher gelöscht. Die Daten sind für immer verloren und die Formulare können erst erneut verwendet werden, wenn Sie wieder online sind. Verwenden Sie dies nur, wenn Ihr Browserspeicher beschädigt ist.",
+                "Schließen Sie vor dem Fortfahren alle anderen Registerkarten der Offline-Formulare. Diese Seite wird neu geladen. Wenn ein Fehler angezeigt wird, müssen Sie diese Aktion möglicherweise wiederholen.",
+                "Möchten Sie fortfahren?"
+            ],
+            "posButton": "Alle löschen"
+        },
+        "print": {
+            "queries": "Verlauf anzeigen",
+            "queryShow": "anzeigen",
+            "heading": "Optionen",
+            "msg": "Zum Vorbereiten eines optimierten Ausdrucks wählen Sie die Optionen unten aus."
+        },
+        "repeatremove": {
+            "msg": "Diese Aktion kann nicht rückgängig gemacht werden (sie wird im Prüfpfad erfasst). Möchten Sie wirklich fortfahren?"
+        }
+    },
+    "constraint": {
+        "relevant": "Durch eine Antwort wurde zu einer anderen Frage gewechselt, für die diese Frage ausgeblendet werden muss, sie kann aber nicht ausgeblendet werden, solange sie Daten enthält. Löschen Sie die Daten oder ändern Sie die abhängigen Antworten."
+    },
+    "home": {
+        "msg": "__appTitle__ wird ausgeführt. Rufen Sie OpenClinica-Formulare von Ihrer __serverName__-Installation aus auf."
+    },
+    "alert": {
+        "appupdated": {
+            "heading": "Bitte aktualisieren",
+            "msg": "Aktualisieren Sie diese Webseite, damit Formulare offline verwenden werden können (Ref.: Anwendung)"
+        },
+        "formupdated": {
+            "heading": "Bitte aktualisieren",
+            "msg": "Aktualisieren Sie diese Webseite, damit Formulare offline verwenden werden können (Ref.: Definition)"
+        },
+        "goto": {
+            "irrelevant": "Das Element, auf das Sie zugreifen möchten, ist aktuell ausgeblendet.",
+            "invisible": "Das Element, auf das Sie zugreifen möchten, ist auf dem Formular nicht sichtbar.",
+            "notfound": "Das Element, auf das Sie zugreifen möchten, wurde aus diesem Formular entfernt.",
+            "msg1": "Verwenden Sie das Symbol „Nur Abfrage anzeigen“ anstatt des Symbols „Abfrage im Datensatz anzeigen“, um es anzuzeigen.",
+            "msg2": "Besuchen Sie __miniform__, um es anzuzeigen.",
+            "form": "dieses Formular"
+        },
+        "loaderror": {
+            "editadvice": "",
+            "entryadvice": "",
+            "heading": "Einen Moment bitte...",
+            "msg1": "Wenden Sie sich bitte an Ihr Supportteam mit einem Link auf diese Seite und der nachstehenden Meldung, wenn Sie weitere Hilfe benötigen.",
+            "msg2": "",
+            "heading_plural": "Einen Moment bitte...",
+            "msg1_plural": "Wenden Sie sich bitte an Ihr Supportteam mit einem Link auf diese Seite und den nachstehenden Meldungen, wenn Sie weitere Hilfe benötigen.",
+            "msg2_plural": ""
+        }
+    },
+    "submission": {
+        "http500": "Es ist ein Problem mit Ihrer Übermittlung aufgetreten. Versuchen Sie es erneut oder wenden Sie sich an __supportEmail__, wenn das Problem weiterhin besteht."
     }
 }
