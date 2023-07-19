@@ -462,7 +462,7 @@ const transformPreviewXForm = async (xformURL) => {
         mode: 'cors',
     });
     const xform = await response.text();
-    const transformed = await transform({ xform });
+    const transformed = await transform({ xform, openclinica: true });
 
     // Since media attachments will not be available for preview-by-URL, map
     // media file names to empty `data:` URLs.
