@@ -58,12 +58,12 @@ if (settings.offline) {
     const isPreview = settings.type === 'preview';
 
     initTranslator(survey)
-        .then((props) => {
-            return connection.getFormParts({
+        .then((props) =>
+            connection.getFormParts({
                 ...props,
                 isPreview,
             })
-        })
+        )
         .then((formParts) => {
             if (
                 location.pathname.indexOf('/edit/') > -1 ||
