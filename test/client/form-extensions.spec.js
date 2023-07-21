@@ -38,5 +38,3 @@ describe('Extended Form Class', () => {
         expect(form.constraintClassesInvalid.length).to.be.above(1);
     });
 });
-
-

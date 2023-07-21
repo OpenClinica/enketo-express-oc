@@ -16,18 +16,13 @@ Form.constraintNames = Array.from(Array(21)).map(
     (val, i) => `constraint${i !== 0 ? i : ''}`
 );
 
-Form.extendedBy = 'what';
+Form.prototype.extendedBy = 'OpenClinica';
 
-Object.defineProperty(Form, 'extendedBy', {
-    value: 'OpenClinica',
-    writable: false
-});
-
-Object.defineProperty(Form, 'constraintClassesInvalid', {
+Object.defineProperty(Form.prototype, 'constraintClassesInvalid', {
     get: () => Form.constraintNames.map((n) => `invalid-${n}`),
 });
 
-Object.defineProperty(Form, 'constraintAttributes', {
+Object.defineProperty(Form.prototype, 'constraintAttributes', {
     get: () =>
         Form.constraintNames.map((n, i) => `data-${i === 0 ? n : `oc-${n}`}`),
 });
