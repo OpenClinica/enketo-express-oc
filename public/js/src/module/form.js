@@ -16,6 +16,13 @@ Form.constraintNames = Array.from(Array(21)).map(
     (val, i) => `constraint${i !== 0 ? i : ''}`
 );
 
+Form.extendedBy = 'what';
+
+Object.defineProperty(Form, 'extendedBy', {
+    value: 'OpenClinica',
+    writable: false
+});
+
 Object.defineProperty(Form, 'constraintClassesInvalid', {
     get: () => Form.constraintNames.map((n) => `invalid-${n}`),
 });
