@@ -49,8 +49,8 @@ describe('GeoJSON external secondary instances', () => {
                 source: 'bad-feature-not-feature.geojson',
             },
             {
-                reason: 'if the geometry is not supported',
-                source: 'feature-collection-with-unsupported-type.geojson',
+                reason: 'if the geometry is not a point',
+                source: 'feature-collection-with-line.geojson',
             },
         ];
 
@@ -91,7 +91,7 @@ describe('GeoJSON external secondary instances', () => {
                 'feature-collection.geojson'
             );
 
-            expect(result.documentElement.childElementCount).to.equal(3);
+            expect(result.documentElement.childElementCount).to.equal(2);
             expect(
                 result.documentElement.children[0].querySelector('geometry')
                     .textContent
@@ -99,11 +99,7 @@ describe('GeoJSON external secondary instances', () => {
             expect(
                 result.documentElement.children[1].querySelector('geometry')
                     .textContent
-            ).to.equal('0.5 104 0 0; 0.5 105 0 0');
-            expect(
-                result.documentElement.children[2].querySelector('geometry')
-                    .textContent
-            ).to.equal('63 5 0 0; 83 10 0 0; 63 5 0 0');
+            ).to.equal('0.5 104 0 0');
         });
 
         it('adds all other properties as children', async () => {

@@ -6,7 +6,7 @@ module.exports = (grunt) => {
         '!.nyc_output',
         '!**/node_modules/**',
         '!test/client/forms/forms.js',
-        '!public/js/build/**',
+        '!public/js/build/*',
         '!docs/**',
         '!test-coverage/**',
     ];
@@ -105,7 +105,7 @@ module.exports = (grunt) => {
                     'find locales -name "translation-combined.json" -delete && rm -fr locales/??',
             },
             'clean-js': {
-                command: 'rm -rf public/js/build/* && rm -f public/js/*.js',
+                command: 'rm -f public/js/build/* && rm -f public/js/*.js',
             },
             translation: {
                 command:
