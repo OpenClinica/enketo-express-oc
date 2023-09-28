@@ -453,53 +453,6 @@ const getExternalData = async (survey, model, options = {}) => {
 };
 
 /**
- * @param {string} xformURL
- */
-const transformPreviewXForm = async (xformURL) => {
-    const { transform } = await import('enketo-transformer/web');
-    const response = await fetch(xformURL, {
-        credentials: 'same-origin',
-        mode: 'cors',
-    });
-    const xform = await response.text();
-    const transformed = await transform({ xform, openclinica: true });
-
-    // Since media attachments will not be available for preview-by-URL, map
-    // media file names to empty `data:` URLs.
-    const media = Object.fromEntries(
-        [
-            {
-                docStr: transformed.form,
-                mimeType: 'text/html',
-            },
-            {
-                docStr: transformed.model,
-                mimeType: 'text/xml',
-            },
-        ].flatMap(({ docStr, mimeType }) => {
-            const parsed = parser.parseFromString(docStr, mimeType);
-            const els = [
-                ...parsed.querySelectorAll(
-                    '[src^="jr:"]:not(instance[src="jr://instance/last-saved"]), a[href^="jr:"]'
-                ),
-            ];
-
-            return els.map((el) => {
-                const jrURL = el.getAttribute('href') ?? el.getAttribute('src');
-                const fileName = jrURL.replace(/.*\/([^/]+$)/, '$1');
-
-                return [fileName, 'data:,'];
-            });
-        })
-    );
-
-    return {
-        ...transformed,
-        media,
-    };
-};
-
-/**
  * @typedef GetFormPartsProps
  * @property {string} enketoId
  * @property {Record<string, string>} [defaults]
@@ -514,66 +467,52 @@ const transformPreviewXForm = async (xformURL) => {
  * @param { GetFormPartsProps } props - form properties object
  * @return { Promise<Survey> } a Promise that resolves with a form parts object
  */
-async function getFormParts(props) {
-    /** @type {import('enketo-transformer').TransformedSurvey} */
-    let transformed;
+function getFormParts(props) {
+    /** @type {Survey} */
+    let survey;
 
-    try {
-        if (props.xformUrl) {
-            if (!props.isPreview || props.enketoId != null) {
-                throw new Error('Unexpected preview request');
+    const transformURL = getTransformURL(settings.basePath, props.enketoId);
+
+    return _postData(transformURL, {
+        xformUrl: props.xformUrl,
+    })
+        .catch((error) => {
+            if (error.status === undefined) {
+                error.message = t('error.formloadfailed');
             }
+            throw error;
+        })
+        .then((data) => {
+            const model = parser.parseFromString(data.model, 'text/xml');
 
-            transformed = await transformPreviewXForm(props.xformUrl);
-        } else {
-            const transformURL = getTransformURL(
-                settings.basePath,
-                props.enketoId
+            const encryptedSubmission = model.querySelector(
+                'submission[base64RsaPublicKey]'
             );
 
-            transformed = await _postData(transformURL, {
-                xformUrl: props.xformUrl,
+            survey = {
+                ...data,
+                enketoId: props.enketoId,
+                theme:
+                    data.theme ||
+                    utils.getThemeFromFormStr(data.form) ||
+                    settings.defaultTheme,
+            };
+
+            if (encryptedSubmission != null) {
+                survey = encryptor.setEncryptionEnabled(survey);
+            }
+
+            return getExternalData(survey, model, {
+                isPreview: props.isPreview,
             });
-        }
-    } catch (error) {
-        if (error.status === undefined) {
-            error.message = t('error.formloadfailed');
-        }
-
-        throw error;
-    }
-
-    const model = parser.parseFromString(transformed.model, 'text/xml');
-
-    const encryptedSubmission = model.querySelector(
-        'submission[base64RsaPublicKey]'
-    );
-
-    /** @type {Survey} */
-    let survey = {
-        ...transformed,
-        enketoId: props.enketoId,
-        theme:
-            transformed.theme ||
-            utils.getThemeFromFormStr(transformed.form) ||
-            settings.defaultTheme,
-    };
-
-    if (encryptedSubmission != null) {
-        survey = encryptor.setEncryptionEnabled(survey);
-    }
-
-    const externalData = await getExternalData(survey, model, {
-        isPreview: props.isPreview,
-    });
-
-    Object.assign(survey, { externalData });
-
-    const lastSavedRecord = props.isPreview
-        ? null
-        : await getLastSavedRecord(survey.enketoId);
-
-    return populateLastSavedInstances(survey, lastSavedRecord);
+        })
+        .then((externalData) => Object.assign(survey, { externalData }))
+        .then((survey) =>
+            Promise.all([survey, getLastSavedRecord(survey.enketoId)])
+        )
+        .then(([survey, lastSavedRecord]) =>
+            populateLastSavedInstances(survey, lastSavedRecord)
+        );
 }
 
 function _postData(url, data = {}) {

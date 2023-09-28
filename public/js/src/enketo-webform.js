@@ -48,25 +48,17 @@ if (settings.offline) {
         .catch(_showErrorOrAuthenticate);
 } else {
     console.log('App in online-only mode.');
-    const isPreview = settings.type === 'preview';
-
     store
         .init({ failSilently: true })
         .then(() => initTranslator(survey))
         .then((props) =>
             connection.getFormParts({
                 ...props,
-                isPreview,
+                isPreview: settings.type === 'preview',
             })
         )
         .then(_swapTheme)
-        .then((survey) => {
-            if (isPreview && settings.xformUrl) {
-                return survey;
-            }
-
-            return connection.getMaximumSubmissionSize(survey);
-        })
+        .then(connection.getMaximumSubmissionSize)
         .then(_updateMaxSizeSetting)
         .then(_init)
         .catch(_showErrorOrAuthenticate);
