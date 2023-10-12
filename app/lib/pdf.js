@@ -121,6 +121,7 @@ async function get(
             },
             scale,
             printBackground: true,
+            timeout,
         });
     } catch (e) {
         e.status = e.status || 400;
