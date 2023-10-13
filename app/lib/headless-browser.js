@@ -12,7 +12,7 @@ class BrowserHandler {
         const launchBrowser = async () => {
             this.browser = false;
             this.browser = await puppeteer.launch({
-                headless: 'new',
+                headless: true,
                 devtools: false,
                 args,
                 userDataDir,
