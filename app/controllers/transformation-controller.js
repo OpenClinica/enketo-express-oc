@@ -4,7 +4,7 @@
 
 const transformer = require('enketo-transformer');
 const communicator = require('../lib/communicator');
-const { ResponseError, TranslatedError } = require('../lib/custom-error');
+const { TranslatedError } = require('../lib/custom-error');
 const surveyModel = require('../models/survey-model');
 const cacheModel = require('../models/cache-model');
 const account = require('../models/account-model');
@@ -13,6 +13,7 @@ const config = require('../models/config-model').server;
 const utils = require('../lib/utils');
 const routerUtils = require('../lib/router-utils');
 const express = require('express');
+const url = require('url');
 const mediaLib = require('../lib/media');
 
 const router = express.Router();
@@ -100,14 +101,26 @@ async function getSurveyParts(req, res, next) {
     /** @type {string | null} */
     let formId = null;
 
+    /** @type {string | null} */
+    let formFileName = null;
+
     try {
         let survey = await _getSurveyParams(req);
 
-        formId = survey.openRosaId;
+        // A request with "xformUrl" body parameter was used (unlaunched form)
+        if (survey.info != null) {
+            formFileName = survey.info.downloadUrl.replace(
+                /.*\/([^/]+)$/,
+                '$1'
+            );
+            survey = await _getFormDirectly(survey);
 
-        if (formId == null) {
-            throw new ResponseError(404);
+            _respond(res, survey);
+
+            return;
         }
+
+        formId = survey.openRosaId;
 
         const authenticated = await _authenticate(survey);
         const cached = await _getFormFromCache(authenticated);
@@ -129,10 +142,14 @@ async function getSurveyParts(req, res, next) {
         });
     } catch (error) {
         if (error.status === 403) {
-            const notFoundError = new TranslatedError(
-                'error.notfoundinformlist',
-                { formId }
-            );
+            const notFoundError =
+                formId == null
+                    ? new TranslatedError('error.notfounddirectformurl', {
+                          formFileName,
+                      })
+                    : new TranslatedError('error.notfoundinformlist', {
+                          formId,
+                      });
 
             notFoundError.status = 404;
 
@@ -164,6 +181,17 @@ function getSurveyHash(req, res, next) {
             });
         })
         .catch(next);
+}
+
+/**
+ * @param {module:survey-model~SurveyObject} survey - survey object
+ *
+ * @return { Promise<module:survey-model~SurveyObject> } a Promise resolving with survey object with form transformation result
+ *
+ */
+function _getFormDirectly(survey) {
+    survey.openclinica = true;
+    return communicator.getXForm(survey).then(transformer.transform);
 }
 
 /**
@@ -205,11 +233,8 @@ function _updateCache(survey) {
                 delete survey.mediaHash;
                 delete survey.mediaUrlHash;
                 delete survey.formHash;
-                survey.openclinica = true;
-                return communicator
-                    .getXForm(survey)
-                    .then(transformer.transform)
-                    .then(cacheModel.set);
+
+                return _getFormDirectly(survey).then(cacheModel.set);
             }
 
             return survey;
@@ -334,6 +359,7 @@ function _setCookieAndCredentials(survey, req) {
  * @return { Promise<module:survey-model~SurveyObject> } a Promise resolving with survey object
  */
 function _getSurveyParams(req) {
+    const params = req.body;
     const customParamName = req.app.get(
         'query parameter to pass to submission'
     );
@@ -350,7 +376,32 @@ function _getSurveyParams(req) {
                 return _setCookieAndCredentials(survey, req);
             });
     }
+    if (params.xformUrl) {
+        const urlObj = url.parse(params.xformUrl);
+        if (!urlObj || !urlObj.protocol || !urlObj.host) {
+            const error = new Error('Bad Request. Form URL is invalid.');
+            error.status = 400;
+            throw error;
+        }
+        const xUrl = `${urlObj.protocol}//${urlObj.host}${urlObj.pathname}`;
 
+        return account
+            .check({
+                openRosaServer: xUrl,
+            })
+            .then(
+                (
+                    survey // no need to check quota
+                ) =>
+                    Promise.resolve({
+                        info: {
+                            downloadUrl: params.xformUrl,
+                        },
+                        account: survey.account,
+                    })
+            )
+            .then((survey) => _setCookieAndCredentials(survey, req));
+    }
     const error = new Error('Bad Request. Survey information not complete.');
     error.status = 400;
     throw error;

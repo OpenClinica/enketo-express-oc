@@ -1,5 +1,4 @@
-// @ts-check
-
+const alias = require('esbuild-plugin-alias');
 const path = require('path');
 const pkg = require('../package.json');
 
@@ -7,22 +6,24 @@ const cwd = process.cwd();
 
 const entryPoints = pkg.entries.map((entry) => path.resolve(cwd, entry));
 
-module.exports = /** @satisfies {import('esbuild').BuildOptions} */ ({
-    alias: Object.fromEntries(
-        Object.entries(pkg.browser).map(([key, value]) => [
-            key,
-            path.resolve(cwd, `${value}.js`),
-        ])
-    ),
+const isProduction = process.env.NODE_ENV === 'production';
+
+module.exports = {
     bundle: true,
-    chunkNames: 'chunks/[name]-[hash]',
     entryPoints,
-    entryNames: '[name]',
-    external: ['crypto', 'libxslt'],
-    format: 'esm',
-    minify: true,
+    format: 'iife',
+    minify: isProduction,
     outdir: path.resolve(cwd, './public/js/build'),
-    sourcemap: true,
-    splitting: true,
+    plugins: [
+        alias(
+            Object.fromEntries(
+                Object.entries(pkg.browser).map(([key, value]) => [
+                    key,
+                    path.resolve(cwd, `${value}.js`),
+                ])
+            )
+        ),
+    ],
+    sourcemap: isProduction ? false : 'inline',
     target: ['chrome89', 'edge89', 'firefox90', 'safari13'],
-});
+};
