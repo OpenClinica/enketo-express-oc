@@ -56,7 +56,7 @@ function getFileUrl(subject) {
         } else if (typeof subject === 'string') {
             const escapedSubject = encodeURIComponent(subject);
 
-            if (subject.startsWith('/') || subject.startsWith('data:')) {
+            if (subject.startsWith('/')) {
                 resolve(subject);
             } else if (
                 instanceAttachments &&
