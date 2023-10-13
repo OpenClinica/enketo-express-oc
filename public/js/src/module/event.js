@@ -24,6 +24,10 @@ events.Close = function () {
     return new CustomEvent('close', { bubbles: true });
 };
 
+events.Exit = function () {
+    return new CustomEvent('exit', { bubbles: true });
+};
+
 events.SignatureRequested = function () {
     return new CustomEvent('signature-request', { bubbles: true });
 };

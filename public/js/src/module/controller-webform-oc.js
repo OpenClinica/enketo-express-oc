@@ -133,7 +133,10 @@ function init(formEl, data, loadErrors = []) {
                 form = new Form(formEl, data, formOptions);
                 replaceModelMediaSources(form, media);
 
-                fieldSubmissionQueue = new FieldSubmissionQueue();
+                fieldSubmissionQueue = new FieldSubmissionQueue({
+                    showStatus:
+                        settings.type !== 'view' && settings.type !== 'preview',
+                });
 
                 // Buffer inputupdate events (DURING LOAD ONLY), in order to eventually log these
                 // changes in the DN widget after it has been initalized
@@ -377,22 +380,15 @@ function init(formEl, data, loadErrors = []) {
                     console.log('doing headless things');
                     gui.prompt = () => Promise.resolve(true);
                     gui.confirm = () => Promise.resolve(true);
+                    gui.confirmAutoQueries = () => Promise.resolve(true);
 
                     if (loadErrors.length) {
                         action = Promise.reject(new Error(loadErrors[0]));
                     } else if (settings.reasonForChange) {
-                        if (!form.model.isMarkedComplete()) {
-                            action = Promise.reject(
-                                new Error(
-                                    'Attempt to load RFC view for non-completed record.'
-                                )
-                            );
-                        } else {
-                            action = _complete(true, {
-                                autoQueries: true,
-                                reasons: true,
-                            });
-                        }
+                        action = _complete(true, {
+                            autoQueries: true,
+                            reasons: true,
+                        });
                     } else {
                         action = _close({ autoQueries: true });
                     }
@@ -1024,18 +1020,10 @@ function _saveRecord(survey, draft, recordName, confirmed) {
                     'info',
                     5
                 );
-            } else {
-                gui.alert(
-                    `${t('record-list.msg2')}`,
-                    t('alert.recordsavesuccess.finalmsg'),
-                    'info',
-                    10
-                );
-                // The timeout simply avoids showing two messages at the same time:
-                // 1. "added to queue"
-                // 2. "successfully submitted"
-                setTimeout(records.uploadQueue, 10 * 1000);
+                return true;
             }
+
+            return records.uploadQueue({ isUserTriggered: !draft });
         })
         .catch((error) => {
             console.error('save error', error);
@@ -1312,64 +1300,77 @@ function _setFormEventHandlers() {
         );
     }
 
-    form.view.html.addEventListener(
-        events.SignatureRequested().type,
-        (event) => {
-            const resetQuestion = () => {
-                event.target.checked = false;
-                event.target.dispatchEvent(events.Change());
-            };
+    if (settings.type !== 'preview') {
+        form.view.html.addEventListener(
+            events.SignatureRequested().type,
+            (event) => {
+                const resetQuestion = () => {
+                    event.target.checked = false;
+                    event.target.dispatchEvent(events.Change());
+                };
 
-            form.validate().then((valid) => {
-                if (valid) {
-                    let timeoutId;
-                    const receiveMessage = (evt) => {
-                        // TODO: remove this temporary logging
-                        console.log(
-                            `evt.origin: ${evt.origin}, settings.parentWindowOrigin: ${settings.parentWindowOrigin}`
-                        );
-                        console.log('msg received: ', JSON.parse(evt.data));
-                        if (evt.origin === settings.parentWindowOrigin) {
-                            const msg = JSON.parse(evt.data);
-                            if (msg.event === 'signature-request-received') {
-                                clearTimeout(timeoutId);
-                            } else if (
-                                msg.event === 'signature-request-failed'
-                            ) {
-                                clearTimeout(timeoutId);
-                                resetQuestion();
-                                window.removeEventListener(
-                                    'message',
-                                    receiveMessage
+                form.validate().then((valid) => {
+                    if (valid) {
+                        let timeoutId;
+                        const receiveMessage = (evt) => {
+                            // TODO: remove this temporary logging
+                            console.log(
+                                `evt.origin: ${evt.origin}, settings.parentWindowOrigin: ${settings.parentWindowOrigin}`
+                            );
+                            console.log('msg received: ', JSON.parse(evt.data));
+                            if (evt.origin === settings.parentWindowOrigin) {
+                                const msg = JSON.parse(evt.data);
+                                if (
+                                    msg.event === 'signature-request-received'
+                                ) {
+                                    clearTimeout(timeoutId);
+                                } else if (
+                                    msg.event === 'signature-request-failed'
+                                ) {
+                                    clearTimeout(timeoutId);
+                                    resetQuestion();
+                                    window.removeEventListener(
+                                        'message',
+                                        receiveMessage
+                                    );
+                                }
+                            } else {
+                                console.error(
+                                    'message received from untrusted source'
                                 );
                             }
-                        } else {
-                            console.error(
-                                'message received from untrusted source'
+                        };
+                        const failHandler = () => {
+                            resetQuestion();
+                            window.removeEventListener(
+                                'message',
+                                receiveMessage
                             );
-                        }
-                    };
-                    const failHandler = () => {
-                        resetQuestion();
-                        window.removeEventListener('message', receiveMessage);
-                        gui.alert(
-                            t(
-                                'fieldsubmission.alert.signatureservicenotavailable.msg'
-                            )
+                            gui.alert(
+                                t(
+                                    'fieldsubmission.alert.signatureservicenotavailable.msg'
+                                )
+                            );
+                        };
+                        timeoutId = setTimeout(failHandler, 3 * 1000);
+                        window.addEventListener(
+                            'message',
+                            receiveMessage,
+                            false
                         );
-                    };
-                    timeoutId = setTimeout(failHandler, 3 * 1000);
-                    window.addEventListener('message', receiveMessage, false);
-                    rc.postEventAsMessageToParentWindow(event);
-                } else {
-                    // If this logic becomes complex, with autoqueries, rfc e.g., consider using
-                    // code in the _complete or _close functions to avoid duplication
-                    resetQuestion();
-                    gui.alert(t('fieldsubmission.alert.participanterror.msg'));
-                }
-            });
-        }
-    );
+                        rc.postEventAsMessageToParentWindow(event);
+                    } else {
+                        // If this logic becomes complex, with autoqueries, rfc e.g., consider using
+                        // code in the _complete or _close functions to avoid duplication
+                        resetQuestion();
+                        gui.alert(
+                            t('fieldsubmission.alert.participanterror.msg')
+                        );
+                    }
+                });
+            }
+        );
+    }
 
     // Before repeat removal from view and model
     if (settings.reasonForChange) {
@@ -1453,6 +1454,14 @@ function _setButtonEventHandlers(survey) {
                 });
 
             return false;
+        });
+    }
+
+    const exitButton = document.querySelector('button#exit-form');
+    if (exitButton) {
+        exitButton.addEventListener('click', () => {
+            document.dispatchEvent(events.Exit());
+            _redirect(100);
         });
     }
 
@@ -1549,7 +1558,7 @@ function _setButtonEventHandlers(survey) {
         }
 
         $('.record-list__button-bar__button.upload').on('click', () => {
-            records.uploadQueue(true);
+            records.uploadQueue({ isUserTriggered: true });
         });
 
         $('.record-list__button-bar__button.export').on('click', () => {
@@ -1615,6 +1624,11 @@ function _setButtonEventHandlers(survey) {
         );
         document.addEventListener(
             events.Close().type,
+            rc.postEventAsMessageToParentWindow
+        );
+
+        document.addEventListener(
+            events.Exit().type,
             rc.postEventAsMessageToParentWindow
         );
 

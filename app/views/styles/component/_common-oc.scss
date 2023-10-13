@@ -300,9 +300,12 @@ $secondary-color: #eeeeee;
                         margin-left: 6px;
                     }
 
-                    // show save-draft button on every page
-                    &#save-draft {
+                    // show save-draft and exit-form button on every page
+                    &#save-draft{
                         display: inline-block;
+                    }
+                    &#exit-form{
+                        display: block;
                     }
                 }
 
@@ -316,7 +319,8 @@ $secondary-color: #eeeeee;
                 }
 
                 #complete-form,
-                #close-form {
+                #close-form,
+                #exit-form {
                     min-width: 140px;
                 }
 
@@ -336,6 +340,7 @@ $secondary-color: #eeeeee;
                 }
 
                 #close-form,
+                #exit-form,
                 #save-draft,
                 #submit-form,
                 #validate-form,
@@ -367,7 +372,8 @@ $secondary-color: #eeeeee;
                     }
                 }
 
-                #close-form ~ #complete-form {
+                #close-form ~ #complete-form,
+                #exit-form ~ #close-form {
                     display: block;
                     margin: 0 30% 20px 30%;
                     order: 4;

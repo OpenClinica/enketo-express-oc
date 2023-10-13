@@ -22,7 +22,7 @@ const FIELDSUBMISSION_COMPLETE_URL = settings.enketoId
     : null;
 
 class FieldSubmissionQueue {
-    constructor() {
+    constructor(options = { showStatus: true }) {
         this.submissionQueue = {};
         this.submissionOngoing = null;
         this.lastAdded = {};
@@ -38,9 +38,12 @@ class FieldSubmissionQueue {
          */
         this._uploadStatus = {
             init() {
+                const statusElementSelector =
+                    '.fieldsubmission-status:not(.readonly)';
                 this.statusElements = document.querySelectorAll(
-                    '.fieldsubmission-status'
+                    statusElementSelector
                 );
+
                 if (!this.statusElements.length) {
                     const range = document.createRange();
                     const first = range.createContextualFragment(
@@ -58,24 +61,26 @@ class FieldSubmissionQueue {
                         formFooter.prepend(second);
                     }
                     this.statusElements = document.querySelectorAll(
-                        '.fieldsubmission-status'
+                        statusElementSelector
                     );
                 }
             },
             update(status) {
-                this.statusElements.forEach((element) => {
-                    element.classList.remove([
-                        'ongoing',
-                        'success',
-                        'error',
-                        'fail',
-                    ]);
-                    element.classList.add(status);
-                    element.dataset.i18n = `fieldsubmission.feedback.${status}`;
-                    element.textContent = t(
-                        `fieldsubmission.feedback.${status}`
-                    );
-                });
+                if (options.showStatus) {
+                    this.statusElements.forEach((element) => {
+                        element.classList.remove([
+                            'ongoing',
+                            'success',
+                            'error',
+                            'fail',
+                        ]);
+                        element.classList.add(status);
+                        element.dataset.i18n = `fieldsubmission.feedback.${status}`;
+                        element.textContent = t(
+                            `fieldsubmission.feedback.${status}`
+                        );
+                    });
+                }
             },
         };
 
