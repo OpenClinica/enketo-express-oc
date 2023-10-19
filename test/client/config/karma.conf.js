@@ -16,9 +16,11 @@ module.exports = (config) => {
             {
                 pattern: 'public/js/src/**/*.js',
                 included: false,
-                served: false,
+                served: true,
+                type: 'module',
             },
-            'test/client/**/*.spec.js',
+            // For OC's customizations to be loaded this needs to follow the public/js/src files...
+            { pattern: 'test/client/**/*.spec.js', type: 'module' },
             {
                 pattern: 'test/fixtures/**/*.geojson',
                 included: false,
@@ -53,7 +55,13 @@ module.exports = (config) => {
                 '.geojson': 'json',
             },
             minify: false,
-            plugins: [...baseESBuildConfig.plugins],
+
+            // As far as I can tell, this is necessary because Karma fails to
+            // resolve split chunks. It's not entirely clear if the split chunks
+            // even get written. This is unfortunate, as we're not entirely
+            // testing the same build setup, but that doesn't seem to be
+            // possible with the rest of our current tooling setup.
+            splitting: false,
         },
 
         browserify: {

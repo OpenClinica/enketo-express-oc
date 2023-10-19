@@ -1,10 +1,8 @@
-import chai from 'chai';
 import { Form } from '../../public/js/src/module/form';
 import forms from './forms/forms';
 import events from '../../public/js/src/module/event';
 import '../../public/js/src/module/form-model';
 
-const { expect } = chai;
 const range = document.createRange();
 
 const loadForm = (filename) => {
