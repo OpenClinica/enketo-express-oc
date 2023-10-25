@@ -34,7 +34,11 @@ describe('Extended Form Class', () => {
         expect(form.evaluationCascadeAdditions.length).to.equal(2);
     });
 
-    it('has multiple invalid constraint classes', () => {
+    it('so that Form instance has multiple invalid constraint classes', () => {
         expect(form.constraintClassesInvalid.length).to.be.above(1);
+    });
+
+    it('so that Form prototype has multiple invalid constraint classes', () => {
+        expect(Form.prototype.constraintClassesInvalid.length).to.be.above(1);
     });
 });

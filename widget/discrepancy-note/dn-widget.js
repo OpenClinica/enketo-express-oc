@@ -974,7 +974,8 @@ class Comment extends Widget {
 
             return el ? el.textContent : '';
         }
-        return Form.constraintClassesInvalid
+
+        return Form.prototype.constraintClassesInvalid
             .map((invalidClass) => {
                 if (this.linkedQuestion.classList.contains(invalidClass)) {
                     const el = this.linkedQuestion.querySelector(
