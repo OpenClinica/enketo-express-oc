@@ -43,6 +43,18 @@ module.exports = (grunt) => {
         sass: {
             options: {
                 implementation: nodeSass,
+                importer: (url) => {
+                    const TARGET = '/packages/enketo-core';
+                    const REPLACEMENT = './node_modules/enketo-core';
+                    if (!url.startsWith(TARGET)) {
+                        return null;
+                    }
+
+                    const repl = url.replace(TARGET, REPLACEMENT);
+                    return {
+                        file: path.resolve(__dirname, repl),
+                    };
+                },
             },
             compile: {
                 cwd: 'app/views/styles',
