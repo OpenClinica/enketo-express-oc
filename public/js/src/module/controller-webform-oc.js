@@ -170,62 +170,6 @@ function init(formEl, data, loadErrors = []) {
                 // set form eventhandlers before initializing form
                 _setFormEventHandlers();
 
-                const handleGoToIrrelevant = (e) => {
-                    let err;
-                    // In OC hidden go_to fields should show loadError
-                    // regular questions:
-                    if (!e.target.classList.contains('or-appearance-dn')) {
-                        err = t('alert.goto.irrelevant');
-                    }
-                    // Discrepancy notes
-                    else {
-                        err = `${t('alert.goto.irrelevant')} `;
-                        const goToErrorLink = settings.goToErrorUrl
-                            ? `<a href="${settings.goToErrorUrl}">${settings.goToErrorUrl}</a>`
-                            : '';
-                        if (settings.interface === 'queries') {
-                            err += goToErrorLink
-                                ? t('alert.goto.msg2', {
-                                      miniform: goToErrorLink,
-                                      // switch off escaping
-                                      interpolation: {
-                                          escapeValue: false,
-                                      },
-                                  })
-                                : t('alert.goto.msg1');
-                        }
-                    }
-                    // For goto targets that are discrepancy notes and are relevant but their linked question is not,
-                    // the goto-irrelevant event will be fired twice. We can safely remove the eventlistener after the first
-                    // event is caught (for all cases).
-                    form.view.html.removeEventListener(
-                        events.GoToIrrelevant().type,
-                        handleGoToIrrelevant
-                    );
-                    goToHiddenErrors = [err];
-                    loadErrors.push(err);
-                };
-
-                const handleGoToInvisible = () => {
-                    form.view.html.removeEventListener(
-                        events.GoToInvisible().type,
-                        handleGoToInvisible
-                    );
-                    if (settings.interface === 'sdv') {
-                        loadErrors.push(`${t('alert.goto.invisible')} `);
-                    }
-                };
-
-                // listen for "goto-irrelevant" event and add error
-                form.view.html.addEventListener(
-                    events.GoToIrrelevant().type,
-                    handleGoToIrrelevant
-                );
-                form.view.html.addEventListener(
-                    events.GoToInvisible().type,
-                    handleGoToInvisible
-                );
-
                 loadErrors = loadErrors.concat(form.init());
 
                 // Determine whether UI language should be attempted to be switched.
@@ -293,6 +237,61 @@ function init(formEl, data, loadErrors = []) {
                 // this is placed in between form.init() and form.goTo().
                 $('.main-loader').remove();
                 if (settings.goTo && location.hash) {
+                    const handleGoToIrrelevant = (e) => {
+                        let err;
+                        // In OC hidden go_to fields should show loadError
+                        // regular questions:
+                        if (!e.target.classList.contains('or-appearance-dn')) {
+                            err = t('alert.goto.irrelevant');
+                        }
+                        // Discrepancy notes
+                        else {
+                            err = `${t('alert.goto.irrelevant')} `;
+                            const goToErrorLink = settings.goToErrorUrl
+                                ? `<a href="${settings.goToErrorUrl}">${settings.goToErrorUrl}</a>`
+                                : '';
+                            if (settings.interface === 'queries') {
+                                err += goToErrorLink
+                                    ? t('alert.goto.msg2', {
+                                          miniform: goToErrorLink,
+                                          // switch off escaping
+                                          interpolation: {
+                                              escapeValue: false,
+                                          },
+                                      })
+                                    : t('alert.goto.msg1');
+                            }
+                        }
+                        // For goto targets that are discrepancy notes and are relevant but their linked question is not,
+                        // the goto-irrelevant event will be fired twice. We can safely remove the eventlistener after the first
+                        // event is caught (for all cases).
+                        form.view.html.removeEventListener(
+                            events.GoToIrrelevant().type,
+                            handleGoToIrrelevant
+                        );
+                        goToHiddenErrors = [err];
+                        loadErrors.push(err);
+                    };
+
+                    const handleGoToInvisible = () => {
+                        form.view.html.removeEventListener(
+                            events.GoToInvisible().type,
+                            handleGoToInvisible
+                        );
+                        if (settings.interface === 'sdv') {
+                            loadErrors.push(`${t('alert.goto.invisible')} `);
+                        }
+                    };
+
+                    form.view.html.addEventListener(
+                        events.GoToIrrelevant().type,
+                        handleGoToIrrelevant
+                    );
+                    form.view.html.addEventListener(
+                        events.GoToInvisible().type,
+                        handleGoToInvisible
+                    );
+
                     // form.goTo returns an array of 1 error if it has error. We're using our special
                     // knowledge of Enketo Core to replace this error
                     goToErrors = form.goTo(
