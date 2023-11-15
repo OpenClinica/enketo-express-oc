@@ -1585,6 +1585,20 @@ class Comment extends Widget {
         }
     }
 
+    _encodeHtml(str) {
+        return str.replace(
+            /[&<>'"]/g,
+            (tag) =>
+                ({
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    "'": '&#39;',
+                    '"': '&quot;',
+                }[tag])
+        );
+    }
+
     _getHistoryRow(item, options = {}) {
         const types = {
             comment: '<span class="icon fa-comment-o"> </span>',
@@ -1638,7 +1652,9 @@ class Comment extends Widget {
                         types[item.type]
                     }</span>
                     <span class="or-comment-widget__content__history__row__main__comment">
-                        <span class="or-comment-widget__content__history__row__main__comment__text">${msg}</span>
+                        <span class="or-comment-widget__content__history__row__main__comment__text">${this._encodeHtml(
+                            msg
+                        )}</span>
                         <span class="or-comment-widget__content__history__row__main__comment__meta">
                             ${
                                 assignee
