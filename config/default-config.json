@@ -53,6 +53,7 @@
         "../../../widget/discrepancy-note/dn-widget",
         "../../../widget/strict-class/strict-class",
         "../../../widget/signature-external/signature-external",
+        "../../../widget/draw/draw-widget",
         "likert",
         "range",
         "columns",
