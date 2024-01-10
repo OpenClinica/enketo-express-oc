@@ -47,7 +47,6 @@
         "datetime",
         "select-media",
         "file",
-        "draw",
         "rank",
         "../../../widget/analog-scale/analog-scalepicker",
         "../../../widget/discrepancy-note/dn-widget",
