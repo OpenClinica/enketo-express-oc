@@ -441,11 +441,12 @@ Form.prototype.goToTarget = function (target, options = {}) {
         // Focus on the first non .ignore form control which is not currently readonly.
         // If the element is hidden (e.g. because it's been replaced by a widget),
         // the focus event will not fire, so we also trigger an applyfocus event that widgets can listen for.
-        let selector =
-            'input:not(.ignore):not([readonly]), textarea:not(.ignore):not([readonly]), select:not(.ignore):not([readonly])';
-
-        // For repeat DOM, prevent focus on DN dome when all element is readonly or ignore(#733)
-        if (target.querySelector('.repeat-number')) {
+        let selector;
+        if (target.closest('.question')) {
+            selector =
+                'input:not(.ignore):not([readonly]), textarea:not(.ignore):not([readonly]), select:not(.ignore):not([readonly])';
+        } else {
+            // For repeat DOM, prevent focus on DN dome when all element is readonly or ignore(#733)
             selector =
                 '.question:not(.or-appearance-dn) input:not(.ignore):not([readonly]), .question:not(.or-appearance-dn) textarea:not(.ignore):not([readonly]), .question:not(.or-appearance-dn) select:not(.ignore):not([readonly])';
         }
