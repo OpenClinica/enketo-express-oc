@@ -45,14 +45,14 @@
             "msg": "Frage „__path__“ wurde im Formular nicht gefunden. Ist der Verweis auf diese Frage korrekt?"
         },
         "loaderror": {
-            "editadvice": "",
-            "entryadvice": "",
-            "heading": "Einen Moment bitte...",
-            "msg1": "Wenden Sie sich bitte an Ihr Supportteam mit einem Link auf diese Seite und der nachstehenden Meldung, wenn Sie weitere Hilfe benötigen.",
-            "msg2": "",
-            "heading_plural": "Einen Moment bitte...",
-            "msg1_plural": "Wenden Sie sich bitte an Ihr Supportteam mit einem Link auf diese Seite und den nachstehenden Meldungen, wenn Sie weitere Hilfe benötigen.",
-            "msg2_plural": ""
+            "editadvice": "Wir empfehlen Ihnen, diesen Datensatz nicht zu bearbeiten, bis dieses Problem behoben ist.",
+            "entryadvice": "Wir empfehlen Ihnen, dieses Formular nicht für die Dateneingabe zu verwenden, bis dieses Problem behoben ist.",
+            "heading": "Fehler beim Laden",
+            "msg1": "Beim Laden dieses Formulars ist ein Fehler aufgetreten.",
+            "msg2": "Wenden Sie sich bitte an __emailLink__ mit einem Link auf diese Seite und der nachstehenden Fehlermeldung:",
+            "heading_plural": "Fehler beim Laden",
+            "msg1_plural": "Beim Laden dieses Formulars sind Fehler aufgetreten.",
+            "msg2_plural": "Wenden Sie sich bitte an __emailLink__ mit einem Link auf diese Seite und den nachstehenden Fehlermeldungen:"
         },
         "logout": {
             "heading": "Abgemeldet",
@@ -171,6 +171,10 @@
         },
         "login": {
             "heading": "Anmeldung erforderlich",
+            "queuedMsg": [
+                "Datensatz für die Übermittlung in die Warteschlange gestellt. Um die Daten in der Warteschlange zu übermitteln, müssen Sie angemeldet sein.",
+                "Möchten Sie sich jetzt oder später anmelden?"
+            ],
             "msg": [
                 "Um die Daten in der Warteschlange zu übermitteln, müssen Sie angemeldet sein. Wenn Sie dies jetzt vornehmen möchten, werden Sie umgeleitet und nicht gespeicherte Informationen gehen verloren.",
                 "Möchten Sie sich jetzt oder später anmelden?"
@@ -180,8 +184,10 @@
         },
         "print": {
             "a4": "A4",
+            "heading": "Druckeinstellungen auswählen",
             "landscape": "Querformat",
             "letter": "Letter",
+            "msg": "Zum Vorbereiten eines optimierten Ausdrucks wählen Sie die Druckeinstellungen unten aus.",
             "orientation": "Papierausrichtung",
             "portrait": "Hochformat",
             "posButton": "Vorbereiten",
@@ -487,6 +493,12 @@
             },
             "participanterror": {
                 "msg": [ "Einige Felder scheinen Ihre Aufmerksamkeit zu benötigen.", "Überprüfen Sie sie, bevor Sie fortfahren." ]
+            },
+            "signatureservicenotavailable": {
+                "msg": "Der Signaturservice ist aktuell nicht verfügbar. Die Markierung der Frage wurde aufgehoben."
+            },
+            "signatureservicefailed":{
+                "msg": "Signatur nicht empfangen. Die Markierung der Frage wurde aufgehoben."
             }
         },
         "confirm": {
