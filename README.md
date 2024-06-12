@@ -2,6 +2,10 @@
 
 # Enketo Express fork for OpenClinica
 
+### ⚠️ Enketo Express code and issues have moved to [the Enketo OC monorepo](https://github.com/OpenClinica/enketo-oc) ⚠️
+
+---
+
 _The [Enketo Smart Paper](https://enketo.org) web application._ It can be used directly by form servers or used as inspiration for building applications that wrap [Enketo Core](https://github.com/enketo/enketo-core). See [this diagram](https://enketo.org/develop/) for a summary of how the different Enketo components are related.
 
 ---
